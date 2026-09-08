@@ -1,0 +1,300 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--sp-6);
+}
+
+.critical-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid color-mix(in srgb, var(--warning) 30%, var(--border));
+  border-radius: var(--r-md);
+  background: var(--warning-soft);
+  font-size: var(--fs-xs);
+  color: var(--warning);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.85fr);
+  gap: var(--sp-5);
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- Plot --------------------------------------------------------------- */
+.plot-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-height: 0;
+  padding: var(--sp-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  background: var(--surface-sunken);
+}
+
+.plot {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.danger-zone {
+  fill: var(--danger);
+  fill-opacity: 0.05;
+  stroke: var(--danger);
+  stroke-opacity: 0.18;
+  stroke-dasharray: 4 4;
+}
+
+.zone-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  fill: var(--danger);
+  fill-opacity: 0.55;
+}
+
+.grid line {
+  stroke: var(--border-subtle);
+  stroke-width: 1;
+}
+
+.tick {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-muted);
+}
+
+.axis-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  fill: var(--text-muted);
+}
+
+/* ---- Marks -------------------------------------------------------------- */
+.mark {
+  cursor: pointer;
+  transition: opacity var(--dur-normal) var(--ease-out);
+}
+
+.mark.is-dimmed {
+  opacity: 0.28;
+}
+
+.mark-halo {
+  fill-opacity: 0;
+  transition: fill-opacity var(--dur-normal) var(--ease-out);
+}
+
+.mark.is-active .mark-halo {
+  fill-opacity: 0.16;
+}
+
+.mark-body {
+  fill-opacity: 0.85;
+  stroke: var(--bg-base);
+  stroke-width: 1.5;
+  transition: fill-opacity var(--dur-fast) var(--ease-out);
+}
+
+.mark:hover .mark-body {
+  fill-opacity: 1;
+}
+
+.mark:focus-visible {
+  outline: none;
+}
+
+.mark:focus-visible .mark-body {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+/* Labels appear on demand — with eighteen marks, permanent labels would
+   collide and turn the map into a word cloud. */
+.mark-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--text-primary);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.mark.is-active .mark-label {
+  opacity: 1;
+}
+
+.plot-caption {
+  flex: none;
+  text-align: center;
+}
+
+/* ---- Side --------------------------------------------------------------- */
+.side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow-y: auto;
+}
+
+.ranking {
+  padding: var(--sp-4) 0;
+}
+
+.ranking-heading {
+  padding: 0 var(--sp-5) var(--sp-3);
+}
+
+.ranking ul {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-5);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.rank-row:hover,
+.rank-row.is-hovered {
+  background: var(--surface-elevated);
+}
+
+.rank-score {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+}
+
+.rank-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rank-name {
+  font-size: var(--fs-xs);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rank-meta {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+/* ---- Detail ------------------------------------------------------------- */
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  animation: rise-in var(--dur-normal) var(--ease-out);
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.severity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+
+.detail-name {
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.detail-path {
+  margin-top: calc(var(--sp-3) * -1);
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+  padding: var(--sp-4) 0;
+  border-block: 1px solid var(--border-subtle);
+}
+
+.metrics dt {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.metrics dd {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.reason h3 {
+  margin-bottom: var(--sp-2);
+}
+
+.reason p {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 1080px) {
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(320px, auto) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--sp-4);
+  }
+
+  .plot-panel {
+    padding: var(--sp-2);
+  }
+}

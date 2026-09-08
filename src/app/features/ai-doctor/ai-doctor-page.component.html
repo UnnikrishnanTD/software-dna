@@ -1,0 +1,115 @@
+@if (analysis(); as data) {
+  <div class="page">
+    <sdna-page-header
+      eyebrow="AI Software Doctor"
+      heading="Ask about this repository"
+      [description]="
+        'The Doctor reasons only over what the analysis measured in ' +
+        data.repository.displayName +
+        '. Every figure it quotes comes from the profile you are looking at.'
+      "
+    />
+
+    <div class="console">
+      <!-- ---- Transcript --------------------------------------------------- -->
+      <div
+        #transcript
+        class="transcript scroll-y"
+        role="log"
+        aria-live="polite"
+        aria-label="Conversation with the Software Doctor"
+      >
+        @for (message of messages(); track message.id) {
+          @if (message.author === 'doctor') {
+            <article class="message is-doctor">
+              <div class="avatar" aria-hidden="true">
+                <sdna-icon name="doctor" [size]="15" />
+              </div>
+              <div class="bubble">
+                <p class="author">Software Doctor</p>
+                <p class="lead">{{ message.text }}</p>
+                @if (message.blocks) {
+                  <sdna-doctor-blocks [blocks]="message.blocks" />
+                }
+              </div>
+            </article>
+          } @else {
+            <article class="message is-user">
+              <div class="bubble">
+                <p class="question">{{ message.text }}</p>
+              </div>
+            </article>
+          }
+        }
+
+        @if (thinking()) {
+          <article class="message is-doctor" aria-label="The Doctor is thinking">
+            <div class="avatar" aria-hidden="true">
+              <sdna-icon name="doctor" [size]="15" />
+            </div>
+            <div class="bubble is-thinking">
+              <span class="thinking-dots" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </span>
+              <span class="thinking-label">Reading the analysis…</span>
+            </div>
+          </article>
+        }
+
+        @if (errorMessage()) {
+          <sdna-state-view
+            kind="error"
+            title="Something went wrong"
+            [message]="errorMessage() ?? ''"
+          />
+        }
+      </div>
+
+      <!-- ---- Composer ----------------------------------------------------- -->
+      <div class="composer-area">
+        @if (availablePrompts().length > 0) {
+          <div class="prompts" role="group" aria-label="Suggested questions">
+            @for (prompt of availablePrompts(); track prompt.id) {
+              <button
+                type="button"
+                class="prompt"
+                [disabled]="thinking()"
+                (click)="usePrompt(prompt)"
+              >
+                <span class="prompt-category mono">{{ prompt.category }}</span>
+                {{ prompt.question }}
+              </button>
+            }
+          </div>
+        }
+
+        <form class="composer" (submit)="$event.preventDefault(); send()">
+          <label class="sr-only" for="doctor-input">Ask the Software Doctor</label>
+          <textarea
+            id="doctor-input"
+            class="composer-input"
+            rows="1"
+            placeholder="Ask about architecture, risk, testing, history…"
+            [value]="draft()"
+            [disabled]="thinking()"
+            (input)="onInput($event)"
+            (keydown)="onKeydown($event)"
+          ></textarea>
+          <button
+            type="submit"
+            class="btn btn-primary btn-icon composer-send"
+            [disabled]="!canSend()"
+            aria-label="Send question"
+          >
+            <sdna-icon name="send" [size]="15" />
+          </button>
+        </form>
+
+        <p class="disclosure caption">
+          Demonstration build — responses are generated from the analysis data,
+          not from a language model.
+        </p>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,125 @@
+<a class="skip-link" href="#analyse-main">Skip to content</a>
+
+<header class="topbar">
+  <a routerLink="/" class="brand" aria-label="Software DNA, home">
+    <span class="brand-mark" aria-hidden="true">
+      <sdna-icon name="overview" [size]="15" />
+    </span>
+    <span class="brand-name">SOFTWARE DNA</span>
+  </a>
+  @if (latestAnalysisId(); as id) {
+    <a class="btn btn-ghost btn-sm" [routerLink]="['/analysis', id]">
+      {{ liveBackend ? 'Latest analysis' : 'Explore demo' }}
+    </a>
+  }
+</header>
+
+<main id="analyse-main">
+  <div class="stage">
+    <p class="eyebrow rise-in">New analysis</p>
+    <h1 class="display-3 rise-in">Paste a GitHub repository</h1>
+    <p class="lede body rise-in">
+      Software DNA reads the repository’s structure, dependencies and history,
+      then generates its DNA profile.
+    </p>
+
+    <form class="composer rise-in" (submit)="submit($event)" novalidate>
+      <div class="field-shell" [class.is-invalid]="errorMessage()">
+        <span class="field-prefix mono" aria-hidden="true">
+          <sdna-icon name="github" [size]="16" />
+        </span>
+
+        <label class="sr-only" for="repo-input">Repository URL</label>
+        <input
+          id="repo-input"
+          class="repo-input"
+          type="text"
+          inputmode="url"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="github.com/owner/repository"
+          [value]="value()"
+          [attr.aria-invalid]="errorMessage() ? 'true' : 'false'"
+          [attr.aria-describedby]="errorMessage() ? 'repo-error' : 'repo-hint'"
+          (input)="onInput($event)"
+          (blur)="touched.set(true)"
+        />
+
+        <button
+          type="submit"
+          class="btn btn-primary submit"
+          [disabled]="!isValid()"
+        >
+          <span>{{ willUseSampleData() ? 'Run sample' : 'Analyse' }}</span>
+          <sdna-icon name="arrow-right" [size]="15" />
+        </button>
+      </div>
+
+      @if (errorMessage()) {
+        <p id="repo-error" class="message is-error" role="alert">
+          <sdna-icon name="alert" [size]="13" />
+          {{ errorMessage() }}
+        </p>
+      } @else if (matchedAnalysis()) {
+        <p id="repo-hint" class="message is-ok">
+          <sdna-icon name="check" [size]="13" />
+          Ready to analyse
+          <span class="mono">{{ parsedLabel() }}</span>
+        </p>
+      } @else {
+        <p id="repo-hint" class="message">
+          A full URL, an SSH remote or a bare <span class="mono">owner/repository</span> all work.
+        </p>
+      }
+    </form>
+
+    @if (willUseSampleData()) {
+      <aside class="sample-notice" role="status">
+        <sdna-icon name="info" [size]="15" />
+        <div>
+          <p class="sample-title">
+            <span class="mono">{{ parsedLabel() }}</span> can’t be fetched in
+            this build.
+          </p>
+          <p class="sample-body">
+            Software DNA has no backend yet, so nothing is cloned or sent
+            anywhere. Continuing will run the scan against
+            <strong>Atlas Commerce Platform</strong>, a sample repository, so
+            you can explore the full experience.
+          </p>
+        </div>
+      </aside>
+    }
+
+    <section class="suggestions rise-in" aria-labelledby="suggestions-heading">
+      <h2 id="suggestions-heading" class="eyebrow">
+        {{ liveBackend ? 'Recently analysed' : 'Repositories this build can analyse' }}
+      </h2>
+      <ul role="list">
+        @for (suggestion of suggestions(); track suggestion.url) {
+          <li>
+            <button type="button" class="suggestion" (click)="use(suggestion.url)">
+              <span class="suggestion-body">
+                <span class="suggestion-label">{{ suggestion.label }}</span>
+                <span class="suggestion-detail mono">{{ suggestion.detail }}</span>
+              </span>
+              <sdna-icon name="arrow-right" [size]="14" />
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <p class="disclosure caption">
+      @if (liveBackend) {
+        The repository is cloned into an isolated workspace, analysed statically
+        and then deleted. No repository code is executed, and nothing is sent to
+        a third party.
+      } @else {
+        This build has no backend. No repository is cloned or transmitted — the
+        analysis runs against a fixed sample dataset.
+      }
+    </p>
+  </div>
+</main>

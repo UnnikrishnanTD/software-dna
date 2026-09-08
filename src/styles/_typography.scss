@@ -1,0 +1,113 @@
+/* Typographic primitives. Display type is tight and confident; technical
+   data is monospaced so numbers align and read as instrument output. */
+
+.display-1,
+.display-2,
+.display-3 {
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tighter);
+  color: var(--text-primary);
+}
+
+.display-1 {
+  font-size: clamp(2.75rem, 7vw, var(--fs-6xl));
+}
+.display-2 {
+  font-size: clamp(2rem, 5vw, var(--fs-4xl));
+}
+.display-3 {
+  font-size: clamp(1.5rem, 3.5vw, var(--fs-3xl));
+}
+
+.heading-lg {
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-snug);
+}
+
+.heading-md {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--lh-snug);
+}
+
+.heading-sm {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+}
+
+/* The product's signature label: small, uppercase, wide-tracked, muted.
+   Used for every section header and metric caption. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.label {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.body-lg {
+  font-size: var(--fs-lg);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.body {
+  font-size: var(--fs-base);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.body-sm {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+
+.caption {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: var(--lh-normal);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Big instrument readouts (scores). Tabular so digits never jitter while
+   the count-up animation runs. */
+.numeral {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: var(--tracking-tighter);
+  line-height: 1;
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-accent {
+  color: var(--accent);
+}

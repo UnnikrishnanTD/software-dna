@@ -1,0 +1,110 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-5);
+  animation: rise-in var(--dur-normal) var(--ease-out);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.identity .eyebrow {
+  text-transform: uppercase;
+}
+
+.name {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+  word-break: break-word;
+}
+
+.path {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  word-break: break-all;
+  line-height: var(--lh-normal);
+}
+
+.description {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+  padding: var(--sp-4) 0;
+  border-block: 1px solid var(--border-subtle);
+}
+
+.metrics dt {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.metrics dd {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.risk {
+  font-weight: 500;
+}
+
+.relations h3 {
+  margin-bottom: var(--sp-3);
+}
+
+.relations ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.relation:hover {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+}
+
+.relation-layer {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+  text-transform: capitalize;
+  flex: none;
+}
+
+.actions {
+  margin-top: auto;
+  padding-top: var(--sp-2);
+}

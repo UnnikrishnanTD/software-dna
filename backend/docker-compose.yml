@@ -1,0 +1,33 @@
+# Local dependencies for the Software DNA backend.
+#
+# NOTE: this file has not been run in the environment it was written in, which
+# has no Docker installed. The image versions and settings match what the
+# application expects, but treat it as unverified until you have run it once.
+#
+# If you would rather not install Docker at all, the application can start its
+# own PostgreSQL instead:
+#
+#     ./mvnw spring-boot:run -Dspring-boot.run.profiles=localdb
+#
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: software-dna-postgres
+    environment:
+      POSTGRES_DB: softwaredna
+      POSTGRES_USER: softwaredna
+      # Development only. Production supplies DATABASE_PASSWORD from a secret.
+      POSTGRES_PASSWORD: softwaredna
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # The application waits for this before running migrations.
+      test: ["CMD-SHELL", "pg_isready -U softwaredna -d softwaredna"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

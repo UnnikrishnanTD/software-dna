@@ -1,0 +1,236 @@
+@if (analysis(); as data) {
+  <div class="page">
+    <!-- ---- Headline ---------------------------------------------------- -->
+    <section class="headline" aria-labelledby="health-heading">
+      <div class="health">
+        <h1 class="eyebrow" id="health-heading">Engineering health</h1>
+
+        <div class="health-figure">
+          <span class="health-score numeral" [style.color]="overallColor()">
+            <sdna-numeral
+              [value]="overall()"
+              [durationMs]="1100"
+              [label]="'Engineering health'"
+            />
+          </span>
+          <div class="health-meta">
+            <span class="health-verdict" [style.color]="overallColor()">
+              {{ overallVerdict() }}
+            </span>
+            <sdna-delta [value]="overallDelta()" unit=" pts" />
+          </div>
+        </div>
+
+        <!-- Percentile placed on a distribution strip: a bare number does not
+             say whether 87 is good, a position against the corpus does. Null
+             until enough repositories have been analysed to place this one. -->
+        @if (data.dna.percentile !== null) {
+          <div class="percentile">
+            <div class="percentile-track" aria-hidden="true">
+              <div
+                class="percentile-marker"
+                [style.left.%]="data.dna.percentile"
+                [style.background]="overallColor()"
+              ></div>
+            </div>
+            <p class="percentile-label">
+              <span class="mono">{{ data.dna.percentile }}th percentile</span>
+              against previously analysed repositories
+            </p>
+          </div>
+        } @else {
+          <p class="percentile-label percentile-absent">
+            Not enough analysed repositories yet to place this score against
+            others.
+          </p>
+        }
+
+        <dl class="highlights">
+          @if (strongest(); as best) {
+            <div>
+              <dt>Strongest</dt>
+              <dd>
+                <span class="highlight-label">{{ best.label }}</span>
+                <span class="mono" [style.color]="colorFor(best.score)">
+                  {{ best.score }}
+                </span>
+              </dd>
+            </div>
+          }
+          @if (weakest(); as worst) {
+            <div>
+              <dt>Weakest</dt>
+              <dd>
+                <span class="highlight-label">{{ worst.label }}</span>
+                <span class="mono" [style.color]="colorFor(worst.score)">
+                  {{ worst.score }}
+                </span>
+              </dd>
+            </div>
+          }
+        </dl>
+      </div>
+
+      <!-- ---- The DNA itself -------------------------------------------- -->
+      <div class="dna">
+        <sdna-dna-helix
+          [dimensions]="dimensions()"
+          [(activeKey)]="hovered"
+          (selected)="select($event)"
+        />
+        <p class="dna-hint caption">
+          Hover a strand to read its dimension. Select one for the full finding.
+        </p>
+      </div>
+
+      <!-- ---- Dimensions / inspector ------------------------------------ -->
+      <div class="side">
+        @if (selectedDimension(); as dimension) {
+          <sdna-panel class="elevated inspector">
+            <sdna-dimension-detail
+              [dimension]="dimension"
+              (closed)="clearSelection()"
+            />
+          </sdna-panel>
+        } @else {
+          <sdna-panel heading="Dimensions" [flush]="true">
+            <ul class="dimension-list" role="list">
+              @for (dimension of dimensions(); track dimension.key) {
+                <li>
+                  <button
+                    type="button"
+                    class="dimension-row"
+                    [class.is-hovered]="hovered() === dimension.key"
+                    [attr.aria-label]="
+                      dimension.label + ', ' + dimension.score + ' out of 100'
+                    "
+                    (pointerenter)="hovered.set(dimension.key)"
+                    (pointerleave)="hovered.set(null)"
+                    (focus)="hovered.set(dimension.key)"
+                    (blur)="hovered.set(null)"
+                    (click)="select(dimension.key)"
+                  >
+                    <span class="dimension-head">
+                      <span class="dimension-label">{{ dimension.label }}</span>
+                      <span
+                        class="dimension-score mono"
+                        [style.color]="colorFor(dimension.score)"
+                      >
+                        {{ dimension.score === null ? '—' : dimension.score }}
+                      </span>
+                    </span>
+                    <sdna-dimension-meter
+                      [score]="dimension.score"
+                      [previous]="previousScore(dimension)"
+                    />
+                    <span class="dimension-headline">
+                      {{ dimension.headline }}
+                    </span>
+                  </button>
+                </li>
+              }
+            </ul>
+          </sdna-panel>
+        }
+      </div>
+    </section>
+
+    <!-- ---- Findings ---------------------------------------------------- -->
+    <section class="findings" aria-labelledby="findings-heading">
+      <h2 id="findings-heading" class="sr-only">Findings</h2>
+
+      <sdna-panel heading="Key findings">
+        @if (headlineInsights().length === 0) {
+          <sdna-state-view
+            kind="no-data"
+            title="No findings recorded"
+            message="The analysis completed without surfacing notable findings."
+          />
+        } @else {
+          <ul class="insight-list" role="list">
+            @for (insight of headlineInsights(); track insight.id) {
+              <li class="insight" [class]="'is-' + insight.kind">
+                <span class="insight-mark" aria-hidden="true">
+                  <sdna-icon
+                    [name]="insight.kind === 'strength' ? 'check' : 'alert'"
+                    [size]="12"
+                    [strokeWidth]="2.2"
+                  />
+                </span>
+                <div>
+                  <p class="insight-title">{{ insight.title }}</p>
+                  <p class="insight-body">{{ insight.body }}</p>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </sdna-panel>
+
+      <sdna-panel heading="Highest risk">
+        <div panelActions>
+          <a class="btn btn-ghost btn-sm" routerLink="../hotspots">
+            All hotspots
+            <sdna-icon name="arrow-right" [size]="13" />
+          </a>
+        </div>
+
+        <ul class="risk-list" role="list">
+          @for (hotspot of topRisks(); track hotspot.id) {
+            <li>
+              <a class="risk" [routerLink]="['../hotspots']" [queryParams]="{ hotspot: hotspot.id }">
+                <span class="risk-rank mono">{{ hotspot.riskScore }}</span>
+                <span class="risk-body">
+                  <span class="risk-name mono">{{ hotspot.name }}</span>
+                  <span class="risk-meta">
+                    {{ hotspot.changes }} changes ·
+                    {{ hotspot.coverage }}% covered ·
+                    {{ hotspot.dependencies }} dependencies
+                  </span>
+                </span>
+                <sdna-icon name="chevron-right" [size]="14" />
+              </a>
+            </li>
+          }
+        </ul>
+      </sdna-panel>
+
+      <sdna-panel heading="Repository">
+        <dl class="stat-grid">
+          <div>
+            <dt>Files</dt>
+            <dd class="mono">{{ data.stats.files.toLocaleString() }}</dd>
+          </div>
+          <div>
+            <dt>Lines of code</dt>
+            <dd class="mono">{{ data.stats.linesOfCode.toLocaleString() }}</dd>
+          </div>
+          <div>
+            <dt>Modules</dt>
+            <dd class="mono">{{ data.stats.modules }}</dd>
+          </div>
+          <div>
+            <dt>Services</dt>
+            <dd class="mono">{{ data.stats.services }}</dd>
+          </div>
+          <div>
+            <dt>Commits</dt>
+            <dd class="mono">{{ data.stats.commits.toLocaleString() }}</dd>
+          </div>
+          <div>
+            <dt>Contributors</dt>
+            <dd class="mono">{{ data.stats.contributors }}</dd>
+          </div>
+          <div>
+            <dt>Test coverage</dt>
+            <dd class="mono">{{ data.stats.testCoverage }}%</dd>
+          </div>
+          <div>
+            <dt>Primary language</dt>
+            <dd class="mono">{{ data.repository.primaryLanguage }}</dd>
+          </div>
+        </dl>
+      </sdna-panel>
+    </section>
+  </div>
+}

@@ -1,0 +1,167 @@
+/* =========================================================================
+   SOFTWARE DNA — DESIGN TOKENS
+   A near-black scientific instrument palette. Two accent hues only:
+   `accent` (electric blue) for interaction, `helix` (teal) for the second
+   DNA strand. Everything else is a neutral or a semantic health colour.
+   ========================================================================= */
+
+:root {
+  /* ---- Surfaces ------------------------------------------------------- */
+  --bg-base: #07080a;
+  --bg-primary: #0a0c0f;
+  --bg-secondary: #0e1116;
+  --surface: #12151b;
+  --surface-elevated: #171b23;
+  --surface-overlay: #1c212a;
+  --surface-sunken: #08090c;
+
+  /* ---- Borders -------------------------------------------------------- */
+  --border-subtle: #1a1f28;
+  --border: #232935;
+  --border-strong: #333b49;
+
+  /* ---- Text ----------------------------------------------------------- */
+  /* Contrast against --surface (#12151b), the ground these sit on most
+     often: primary 15.1:1, secondary 7.1:1, muted 4.9:1 — all clear of the
+     4.5:1 AA threshold for small text. `--text-faint` is 3.2:1 and is
+     reserved for decoration and non-essential marks, never for content a
+     reader needs. */
+  --text-primary: #e9edf3;
+  --text-secondary: #97a2b2;
+  --text-muted: #7b8593;
+  --text-faint: #5d6675;
+  --text-inverse: #07080a;
+
+  /* ---- Accent (interaction) ------------------------------------------ */
+  --accent: #5b8cff;
+  --accent-bright: #7ea6ff;
+  --accent-dim: #3f6ad4;
+  --accent-soft: rgba(91, 140, 255, 0.12);
+  --accent-softer: rgba(91, 140, 255, 0.06);
+  --accent-ring: rgba(91, 140, 255, 0.4);
+
+  /* ---- Helix (second strand / biological counterpart) ----------------- */
+  --helix: #3ecfb2;
+  --helix-bright: #5fe3c8;
+  --helix-soft: rgba(62, 207, 178, 0.12);
+
+  /* ---- Semantic health ------------------------------------------------ */
+  --success: #3ecf8e;
+  --success-soft: rgba(62, 207, 142, 0.12);
+  --warning: #e9b44c;
+  --warning-soft: rgba(233, 180, 76, 0.12);
+  --danger: #f2576c;
+  --danger-soft: rgba(242, 87, 108, 0.12);
+  --info: #5b8cff;
+
+  /* ---- Health scale (score -> colour), used by the DNA + all charts --- */
+  --health-critical: #f2576c;
+  --health-poor: #f2804f;
+  --health-fair: #e9b44c;
+  --health-good: #3ecfb2;
+  --health-excellent: #3ecf8e;
+
+  /* ---- Typography ----------------------------------------------------- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono',
+    Menlo, Consolas, monospace;
+
+  --fs-2xs: 0.6875rem; /* 11 */
+  --fs-xs: 0.75rem;    /* 12 */
+  --fs-sm: 0.8125rem;  /* 13 */
+  --fs-base: 0.875rem; /* 14 */
+  --fs-md: 0.9375rem;  /* 15 */
+  --fs-lg: 1.0625rem;  /* 17 */
+  --fs-xl: 1.375rem;   /* 22 */
+  --fs-2xl: 1.75rem;   /* 28 */
+  --fs-3xl: 2.25rem;   /* 36 */
+  --fs-4xl: 3rem;      /* 48 */
+  --fs-5xl: 4rem;      /* 64 */
+  --fs-6xl: 5.5rem;    /* 88 */
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.28;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  --tracking-tighter: -0.035em;
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+  --tracking-wider: 0.14em;
+  --tracking-widest: 0.22em;
+
+  /* ---- Space ---------------------------------------------------------- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-20: 5rem;
+  --sp-24: 6rem;
+  --sp-32: 8rem;
+
+  /* ---- Radii ---------------------------------------------------------- */
+  --r-xs: 3px;
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl: 22px;
+  --r-full: 999px;
+
+  /* ---- Elevation ------------------------------------------------------ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px -4px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 48px -12px rgba(0, 0, 0, 0.65);
+  --shadow-xl: 0 32px 80px -20px rgba(0, 0, 0, 0.75);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* ---- Motion --------------------------------------------------------- */
+  --dur-instant: 80ms;
+  --dur-fast: 140ms;
+  --dur-normal: 240ms;
+  --dur-slow: 420ms;
+  --dur-slower: 700ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Layout --------------------------------------------------------- */
+  --shell-topbar-h: 52px;
+  --shell-sidebar-w: 232px;
+  --shell-inspector-w: 360px;
+  --content-max: 1440px;
+
+  /* ---- Z ------------------------------------------------------------- */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-dropdown: 40;
+  --z-overlay: 60;
+  --z-modal: 80;
+  --z-toast: 100;
+}
+
+/* The product is dark-native. The light scheme is intentionally not offered:
+   the DNA visualisation encodes health through luminance against a dark
+   ground, and a light inversion would weaken that signal. */
+:root {
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-fast: 0ms;
+    --dur-normal: 0ms;
+    --dur-slow: 0ms;
+    --dur-slower: 0ms;
+  }
+}

@@ -1,0 +1,107 @@
+spring:
+  application:
+    name: software-dna
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/softwaredna}
+    username: ${DATABASE_USERNAME:softwaredna}
+    password: ${DATABASE_PASSWORD:softwaredna}
+    hikari:
+      maximum-pool-size: ${DATABASE_POOL_SIZE:10}
+      pool-name: software-dna-pool
+
+  jpa:
+    open-in-view: false          # No lazy loading from the view layer.
+    hibernate:
+      ddl-auto: validate         # Flyway owns the schema; Hibernate only checks it.
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100        # An analysis writes thousands of rows at once.
+        order_inserts: true
+        order_updates: true
+        default_batch_fetch_size: 64   # Blunts N+1 on collection access.
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  threads:
+    virtual:
+      enabled: true
+
+softwaredna:
+  # Configurable per environment. Local development allows the two dev
+  # server ports; production must set this to the deployed frontend's real
+  # origin via SOFTWAREDNA_CORS_ALLOWED_ORIGINS, or every request from it
+  # will be rejected by the browser.
+  cors:
+    allowed-origins: ${SOFTWAREDNA_CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:4290}
+
+  # Per-IP limits on the two endpoints that cost real compute: starting an
+  # analysis (a clone plus a full static-analysis pass) and asking the
+  # Doctor a question. Everything else is cheap and unlimited.
+  rate-limit:
+    analyses-per-hour: ${RATE_LIMIT_ANALYSES_PER_HOUR:5}
+    questions-per-hour: ${RATE_LIMIT_QUESTIONS_PER_HOUR:30}
+
+  github:
+    api-url: ${GITHUB_API_URL:https://api.github.com}
+    # Optional. Without it the public API allows 60 requests/hour, which is
+    # enough to analyse a handful of repositories but not to run at scale.
+    token: ${GITHUB_TOKEN:}
+    request-timeout: 20s
+
+  workspace:
+    # Every clone lands in a per-analysis directory beneath this root, and
+    # nothing outside it is ever read or written.
+    root: ${WORKSPACE_ROOT:${java.io.tmpdir}/software-dna-workspaces}
+    keep-after-analysis: ${WORKSPACE_KEEP:false}
+
+  limits:
+    max-repository-bytes: 524288000      # 500 MB checked out
+    max-file-bytes: 2097152              # 2 MB per source file
+    max-files-scanned: 25000
+    max-commits-scanned: 20000
+    clone-timeout: 5m
+    max-graph-nodes: 300                 # The graph is aggregated, not per-file.
+
+  analysis:
+    # Bounded pool: analysis is CPU and IO heavy, and an unbounded pool would
+    # let a burst of submissions exhaust the machine.
+    worker-threads: ${ANALYSIS_WORKERS:2}
+    queue-capacity: ${ANALYSIS_QUEUE:50}
+
+  ai:
+    provider: ${AI_PROVIDER:deterministic}
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    com.softwaredna: ${LOG_LEVEL:INFO}
+    org.eclipse.jgit: WARN
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-stacktrace: never    # Stack traces never reach a client.
+    include-message: never

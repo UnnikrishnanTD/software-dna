@@ -1,0 +1,310 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  max-width: 1120px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---- Selectors ---------------------------------------------------------- */
+.selectors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--sp-4);
+}
+
+.selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.swap {
+  margin-bottom: 3px;
+}
+
+/* ---- Headline ----------------------------------------------------------- */
+.headline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-6);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.side.is-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.side-name {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.side-meta {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.side-score {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-4xl);
+  line-height: 1;
+}
+
+.side-wins {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-2xs);
+  color: var(--text-faint);
+}
+
+.versus {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  align-self: stretch;
+}
+
+.versus-line {
+  flex: 1;
+  width: 1px;
+  background: linear-gradient(var(--border-subtle), var(--border-strong));
+}
+
+.versus-label {
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-widest);
+  color: var(--text-faint);
+}
+
+/* ---- Diverging bars ------------------------------------------------------
+   Each row is a mirrored pair around a shared axis. The leading side is
+   drawn at full strength and the trailing side dimmed, so the winner is
+   readable before any number is. */
+.compare-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.compare-row {
+  display: grid;
+  grid-template-columns: 3ch minmax(0, 1fr) 3ch;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+}
+
+.compare-row + .compare-row {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.value {
+  font-size: var(--fs-md);
+  font-weight: 500;
+  opacity: 0.45;
+  transition: opacity var(--dur-normal) var(--ease-out);
+}
+
+.value.is-left {
+  text-align: right;
+}
+
+.leads-left .value.is-left,
+.leads-right .value.is-right,
+.leads-tie .value {
+  opacity: 1;
+}
+
+.track {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  align-items: center;
+  height: 30px;
+}
+
+.half {
+  display: flex;
+  height: 8px;
+}
+
+.half.is-left {
+  justify-content: flex-end;
+}
+
+.bar {
+  height: 100%;
+  transition: width var(--dur-slower) var(--ease-out);
+}
+
+/* The span both repositories reach stays quiet… */
+.bar.is-shared {
+  opacity: 0.28;
+}
+
+/* …and the margin of victory is what the eye lands on. */
+.bar.is-lead {
+  opacity: 1;
+  box-shadow: 0 0 10px -1px currentColor;
+}
+
+.half.is-left .bar.is-lead {
+  border-radius: var(--r-full) 0 0 var(--r-full);
+}
+
+.half.is-left .bar.is-shared {
+  border-radius: 0 2px 2px 0;
+}
+
+.half.is-right .bar.is-shared {
+  border-radius: 2px 0 0 2px;
+}
+
+.half.is-right .bar.is-lead {
+  border-radius: 0 var(--r-full) var(--r-full) 0;
+}
+
+/* When the two are level there is no lead segment to draw, so the shared
+   bars carry the row on their own. */
+.leads-tie .bar.is-shared {
+  opacity: 0.75;
+}
+
+.axis {
+  height: 26px;
+  background: var(--border-strong);
+}
+
+.dimension-label {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  transform: translateX(-50%);
+  padding: 0 var(--sp-2);
+  background: var(--surface);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* ---- Verdict ------------------------------------------------------------ */
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.verdict-headline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.verdict-headline sdna-icon {
+  color: var(--accent);
+  flex: none;
+}
+
+.verdict-body {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+  max-width: 76ch;
+}
+
+.takeaways {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.takeaway-name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.takeaway-text {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 760px) {
+  .page {
+    padding: var(--sp-4);
+  }
+
+  .selectors {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .swap {
+    justify-self: center;
+    margin: 0;
+  }
+
+  .headline {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+    padding: var(--sp-5);
+  }
+
+  .side.is-right {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* The divider turns horizontal when the sides stack. */
+  .versus {
+    flex-direction: row;
+  }
+
+  .versus-line {
+    width: auto;
+    height: 1px;
+    flex: 1;
+    background: var(--border);
+  }
+
+  .compare-row {
+    grid-template-columns: 3ch minmax(0, 1fr) 3ch;
+    gap: var(--sp-2);
+    padding: var(--sp-4) var(--sp-3);
+  }
+
+  .takeaways {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

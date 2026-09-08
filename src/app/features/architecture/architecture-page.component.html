@@ -1,0 +1,236 @@
+@if (analysis(); as data) {
+  <div class="page">
+    <sdna-page-header
+      eyebrow="Architecture"
+      heading="Dependency graph"
+      [description]="
+        data.architecture.nodes.length +
+        ' units across five layers, connected by ' +
+        data.architecture.edges.length +
+        ' relationships. Dependencies flow left to right.'
+      "
+    >
+      <a class="btn btn-ghost btn-sm" routerLink="../hotspots">
+        <sdna-icon name="hotspots" [size]="13" />
+        Hotspots
+      </a>
+    </sdna-page-header>
+
+    <!-- ---- Toolbar ----------------------------------------------------- -->
+    <div class="toolbar">
+      <div class="search">
+        <sdna-icon name="search" [size]="14" />
+        <label class="sr-only" for="graph-search">Search units</label>
+        <input
+          id="graph-search"
+          class="search-input"
+          type="search"
+          placeholder="Search units, paths or kinds…"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+        @if (matchCount() > 0) {
+          <span class="match-count mono">{{ matchCount() }}</span>
+        }
+      </div>
+
+      <div class="filters" role="group" aria-label="Filter by layer">
+        @for (filter of layerFilters; track filter.key) {
+          <button
+            type="button"
+            class="chip"
+            [attr.aria-pressed]="!hiddenLayers().has(filter.key)"
+            (click)="toggleLayer(filter.key)"
+          >
+            {{ filter.label }}
+          </button>
+        }
+      </div>
+
+      <div class="viewport-controls">
+        <span class="zoom-label mono">{{ zoomLabel() }}</span>
+        <button
+          type="button"
+          class="btn btn-icon btn-sm"
+          aria-label="Zoom out"
+          (click)="zoomBy(0.85)"
+        >
+          <sdna-icon name="minus" [size]="14" />
+        </button>
+        <button
+          type="button"
+          class="btn btn-icon btn-sm"
+          aria-label="Zoom in"
+          (click)="zoomBy(1.18)"
+        >
+          <sdna-icon name="plus" [size]="14" />
+        </button>
+        <button type="button" class="btn btn-sm" (click)="resetView()">
+          <sdna-icon name="reset" [size]="13" />
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- ---- Graph + inspector -------------------------------------------- -->
+    <div class="workspace" [class.has-inspector]="selectedNode()">
+      <div
+        #surface
+        class="surface"
+        (wheel)="onWheel($event)"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp()"
+        (pointercancel)="onPointerUp()"
+      >
+        @if (layout(); as graph) {
+          <svg
+            class="graph"
+            [attr.viewBox]="'0 0 ' + graph.width + ' ' + graph.height"
+            preserveAspectRatio="xMidYMid meet"
+            role="group"
+            aria-label="Architecture dependency graph"
+          >
+            <g [attr.transform]="transform()">
+              <!-- Column headers -->
+              @for (column of graph.columns; track column.layer) {
+                <text
+                  class="column-label"
+                  [attr.x]="column.x"
+                  y="26"
+                  [attr.opacity]="hiddenLayers().has(column.layer) ? 0.25 : 1"
+                >
+                  {{ column.label }}
+                </text>
+              }
+
+              <!-- Edges beneath nodes so nodes always stay legible -->
+              <g class="edges" fill="none">
+                @for (item of graph.edges; track item.edge.id) {
+                  <path
+                    [attr.d]="item.path"
+                    [attr.stroke-width]="0.6 + item.edge.weight * 0.14"
+                    [attr.stroke-opacity]="
+                      edgeOpacity(item.edge.source, item.edge.target)
+                    "
+                    [class.is-focused]="
+                      relatedIds().has(item.edge.source) &&
+                      relatedIds().has(item.edge.target)
+                    "
+                  />
+                }
+              </g>
+
+              <!-- Nodes -->
+              <g class="nodes">
+                @for (item of graph.nodes; track item.node.id) {
+                  <g
+                    class="node"
+                    [class.is-selected]="selectedId() === item.node.id"
+                    [attr.transform]="'translate(' + item.x + ' ' + item.y + ')'"
+                    [attr.opacity]="nodeOpacity(item.node)"
+                    [attr.pointer-events]="
+                      isVisible(item.node) ? 'auto' : 'none'
+                    "
+                    tabindex="0"
+                    role="button"
+                    [attr.aria-label]="
+                      item.node.name +
+                      ', ' +
+                      item.node.kind +
+                      ' in the ' +
+                      item.node.layer +
+                      ' layer, risk ' +
+                      item.node.risk
+                    "
+                    (pointerenter)="hoveredId.set(item.node.id)"
+                    (pointerleave)="hoveredId.set(null)"
+                    (focus)="hoveredId.set(item.node.id)"
+                    (blur)="hoveredId.set(null)"
+                    (click)="select(item.node.id)"
+                    (keydown.enter)="select(item.node.id)"
+                    (keydown.space)="$event.preventDefault(); select(item.node.id)"
+                  >
+                    <rect
+                      class="node-body"
+                      [attr.width]="NODE_WIDTH"
+                      [attr.height]="NODE_HEIGHT"
+                      rx="6"
+                    />
+                    <rect
+                      class="node-risk"
+                      x="0"
+                      y="0"
+                      width="3"
+                      [attr.height]="NODE_HEIGHT"
+                      rx="1.5"
+                      [attr.fill]="riskColor(item.node)"
+                    />
+                    <text class="node-name" x="14" [attr.y]="NODE_HEIGHT / 2 + 4">
+                      {{ item.node.name }}
+                    </text>
+                    <text
+                      class="node-fanout"
+                      [attr.x]="NODE_WIDTH - 12"
+                      [attr.y]="NODE_HEIGHT / 2 + 4"
+                      text-anchor="end"
+                    >
+                      {{ item.node.fanOut }}↗
+                    </text>
+                  </g>
+                }
+              </g>
+            </g>
+          </svg>
+        }
+
+        @if (matchCount() === 0 && search().trim() !== '') {
+          <div class="overlay-state">
+            <sdna-state-view
+              kind="empty"
+              title="No units match that search"
+              [message]="'Nothing in the graph matches “' + search() + '”.'"
+              actionLabel="Clear search"
+              (action)="search.set('')"
+            />
+          </div>
+        }
+      </div>
+
+      <!-- Legend + cycles -->
+      <div class="graph-footnote">
+        <ul class="legend" role="list">
+          <li><span class="swatch" style="background: var(--health-good)"></span>Low risk</li>
+          <li><span class="swatch" style="background: var(--health-fair)"></span>Medium</li>
+          <li><span class="swatch" style="background: var(--health-poor)"></span>High</li>
+          <li><span class="swatch" style="background: var(--health-critical)"></span>Critical</li>
+        </ul>
+
+        @if (cycleCount() > 0) {
+          <p class="cycles">
+            <sdna-icon name="alert" [size]="13" />
+            {{ cycleCount() }} circular
+            {{ cycleCount() === 1 ? 'dependency' : 'dependencies' }}:
+            @for (cycle of data.architecture.circularDependencies; track $index) {
+              <span class="cycle mono">{{ cycle.join(' ↔ ') }}</span>
+            }
+          </p>
+        }
+
+        <p class="hint caption">Drag to pan · ⌘/Ctrl + scroll to zoom</p>
+      </div>
+
+      @if (selectedNode(); as node) {
+        <aside class="inspector" aria-label="Unit inspector">
+          <sdna-node-inspector
+            [node]="node"
+            [dependsOn]="selectedRelations().dependsOn"
+            [usedBy]="selectedRelations().usedBy"
+            (closed)="select(null)"
+            (navigate)="select($event)"
+          />
+        </aside>
+      }
+    </div>
+  </div>
+}

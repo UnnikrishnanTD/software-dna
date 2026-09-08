@@ -1,0 +1,410 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  padding: var(--sp-6);
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* ---- Headline row -------------------------------------------------------
+   Three columns: the reading, the object, the breakdown. The DNA is the
+   widest and sits in the centre because it is the subject, not a chart. */
+.headline {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(320px, 1.15fr) minmax(300px, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+/* ---- Health reading ----------------------------------------------------- */
+.health {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-6) var(--sp-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-inset);
+}
+
+.health h1 {
+  font-weight: 500;
+}
+
+.health-figure {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.health-score {
+  font-size: clamp(3.5rem, 7vw, 5rem);
+  line-height: 0.9;
+}
+
+.health-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.health-verdict {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+
+.percentile-track {
+  position: relative;
+  height: 3px;
+  border-radius: var(--r-full);
+  background: linear-gradient(
+    90deg,
+    var(--health-critical),
+    var(--health-fair) 55%,
+    var(--health-excellent)
+  );
+  opacity: 0.35;
+}
+
+.percentile-marker {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 13px;
+  border-radius: var(--r-full);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px var(--surface);
+  transition: left var(--dur-slower) var(--ease-out);
+}
+
+.percentile-label {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.percentile-label .mono {
+  color: var(--text-secondary);
+}
+
+.percentile-absent {
+  margin-top: 0;
+  max-width: 34ch;
+  line-height: var(--lh-normal);
+}
+
+.highlights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.highlights > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.highlights dt {
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.highlights dd {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-3);
+  margin: 0;
+}
+
+.highlight-label {
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+}
+
+/* ---- DNA ---------------------------------------------------------------- */
+.dna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+}
+
+.dna sdna-dna-helix {
+  width: 100%;
+  max-width: 420px;
+}
+
+.dna-hint {
+  text-align: center;
+  max-width: 34ch;
+}
+
+/* ---- Dimension list ----------------------------------------------------- */
+.side {
+  position: sticky;
+  top: var(--sp-6);
+}
+
+.dimension-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dimension-list li + li {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dimension-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-5);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.dimension-row:hover,
+.dimension-row.is-hovered {
+  background: var(--surface-elevated);
+}
+
+.dimension-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.dimension-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.dimension-score {
+  font-size: var(--fs-md);
+  font-weight: 500;
+}
+
+.dimension-headline {
+  font-size: var(--fs-2xs);
+  line-height: var(--lh-normal);
+  color: var(--text-muted);
+}
+
+.inspector {
+  overflow: hidden;
+}
+
+/* ---- Findings row ------------------------------------------------------- */
+.findings {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-6);
+  align-items: start;
+}
+
+.insight-list,
+.risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.insight {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+
+.insight-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: var(--r-sm);
+}
+
+.insight.is-strength .insight-mark {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.insight.is-risk .insight-mark {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.insight-title {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.insight-body {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-muted);
+}
+
+.risk-list {
+  gap: var(--sp-2);
+}
+
+.risk {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  margin: 0 calc(var(--sp-3) * -1);
+  border-radius: var(--r-md);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.risk:hover {
+  background: var(--surface-elevated);
+}
+
+.risk sdna-icon {
+  color: var(--text-faint);
+  margin-left: auto;
+}
+
+.risk-rank {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 34px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  color: var(--warning);
+}
+
+.risk-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.risk-name {
+  font-size: var(--fs-xs);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.risk-meta {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+/* ---- Stats -------------------------------------------------------------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4) var(--sp-5);
+  margin: 0;
+}
+
+.stat-grid dt {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.stat-grid dd {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-md);
+  color: var(--text-primary);
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 1280px) {
+  .headline {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  /* The DNA keeps top billing; the breakdown moves below it. */
+  .dna {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .side {
+    grid-column: 1;
+    position: static;
+  }
+
+  .findings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .headline,
+  .findings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dna,
+  .side {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  /* On a phone the headline score leads. Giving the DNA top billing here
+     pushed the number that answers "how healthy is this?" below the fold,
+     and the reader had to scroll a full screen to reach it. */
+  .dna sdna-dna-helix {
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dna sdna-dna-helix {
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--sp-4);
+    gap: var(--sp-4);
+  }
+
+  .health {
+    padding: var(--sp-5) var(--sp-4);
+  }
+
+  .stat-grid {
+    gap: var(--sp-3) var(--sp-4);
+  }
+}

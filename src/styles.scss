@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+/* SOFTWARE DNA — global stylesheet
+   Order matters: tokens define the vocabulary, reset normalises, then
+   typography and utilities build on both. */
+
+@use 'styles/tokens';
+@use 'styles/reset';
+@use 'styles/typography';
+@use 'styles/controls';
+@use 'styles/utilities';
+
+app-root {
+  display: block;
+  /* Viewport units rather than a percentage: `body` has no resolved height
+     to take a percentage of once it is content-sized. */
+  min-height: 100dvh;
+}

@@ -1,0 +1,259 @@
+@if (analysis(); as data) {
+  <div class="page">
+    <sdna-page-header
+      eyebrow="Evolution"
+      heading="How this system got here"
+      [description]="
+        firstYear() +
+        ' to ' +
+        lastYear() +
+        '. The spine is the overall score; events above the line raised it, events below cost it.'
+      "
+    >
+      <span class="growth">
+        <sdna-icon name="arrow-up" [size]="13" />
+        {{ totalGrowth() }} points since {{ firstYear() }}
+      </span>
+    </sdna-page-header>
+
+    <!-- ---- Timeline ----------------------------------------------------- -->
+    <sdna-panel>
+      @if (points().length === 0) {
+        <sdna-state-view
+          kind="no-data"
+          title="Insufficient history to build a timeline"
+          message="This repository does not have enough recorded history to plot its evolution."
+        />
+      } @else {
+        <div class="timeline-scroll">
+        <svg
+          class="timeline"
+          [attr.viewBox]="'0 0 ' + TL_W + ' ' + TL_H"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          [attr.aria-label]="
+            'Overall engineering health from ' + firstYear() + ' to ' + lastYear()
+          "
+        >
+          <defs>
+            <linearGradient id="trajectory-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.22" />
+              <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+
+          <path class="area" [attr.d]="areaPath()" />
+          <path class="trajectory" [attr.d]="trajectoryPath()" />
+
+          <!-- Milestones -->
+          @for (item of milestones(); track item.milestone.id) {
+            <g
+              class="milestone"
+              [class.is-current]="item.milestone.year === selectedPoint()?.year"
+            >
+              <line
+                [attr.x1]="item.x"
+                [attr.x2]="item.x"
+                [attr.y1]="item.milestone.impact >= 0 ? item.y + 6 : item.y - 6"
+                [attr.y2]="item.milestone.impact >= 0 ? 40 : TL_BOTTOM"
+                [attr.stroke]="item.color"
+              />
+              <circle
+                [attr.cx]="item.x"
+                [attr.cy]="item.y"
+                r="4"
+                [attr.fill]="item.color"
+              />
+              <title>{{ item.milestone.title }}</title>
+            </g>
+          }
+
+          <!-- Year markers -->
+          @for (year of years(); track year.point.year; let i = $index) {
+            <g
+              class="year"
+              [class.is-selected]="selectedIndex() === i"
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="
+                year.point.year + ', overall score ' + year.point.overall
+              "
+              [attr.aria-pressed]="selectedIndex() === i"
+              (click)="selectYear(i)"
+              (keydown.enter)="selectYear(i)"
+              (keydown.space)="$event.preventDefault(); selectYear(i)"
+            >
+              <line
+                class="year-rule"
+                [attr.x1]="year.x"
+                [attr.x2]="year.x"
+                [attr.y1]="year.y"
+                [attr.y2]="TL_BOTTOM"
+              />
+              <circle
+                class="year-dot"
+                [attr.cx]="year.x"
+                [attr.cy]="year.y"
+                r="5"
+                [attr.fill]="colorFor(year.point.overall)"
+                [attr.fill-opacity]="year.measured ? null : 0.25"
+              />
+              <text class="year-score" [attr.x]="year.x" [attr.y]="year.y - 14" text-anchor="middle">
+                {{ year.point.overall === null ? '' : year.point.overall }}
+              </text>
+              <text class="year-label" [attr.x]="year.x" [attr.y]="TL_BOTTOM + 34" text-anchor="middle">
+                {{ year.point.year }}
+              </text>
+              <rect
+                class="year-hit"
+                [attr.x]="year.x - 26"
+                y="0"
+                width="52"
+                [attr.height]="TL_H"
+              />
+            </g>
+          }
+        </svg>
+        </div>
+
+        <!-- The slider is the primary control; the dots above mirror it. -->
+        <div class="scrubber">
+          <label class="sr-only" for="year-slider">Select a year</label>
+          <input
+            id="year-slider"
+            class="slider"
+            type="range"
+            min="0"
+            [max]="points().length - 1"
+            step="1"
+            [value]="selectedIndex()"
+            [attr.aria-valuetext]="selectedPoint()?.year"
+            (input)="onSlider($event)"
+          />
+          <div class="scrubber-ends mono">
+            <span>{{ firstYear() }}</span>
+            <span>{{ lastYear() }}</span>
+          </div>
+        </div>
+
+        <ul class="milestone-legend" role="list">
+          @for (entry of milestoneLegend; track entry.kind) {
+            <li>
+              <span class="legend-dot" [style.background]="entry.color"></span>
+              {{ entry.label }}
+            </li>
+          }
+        </ul>
+      }
+    </sdna-panel>
+
+    <!-- ---- Selected year ------------------------------------------------ -->
+    @if (selectedPoint(); as point) {
+      <div class="year-detail">
+        <sdna-panel>
+          <header class="year-head">
+            <div>
+              <p class="eyebrow">Snapshot</p>
+              <h2 class="year-number numeral">{{ point.year }}</h2>
+            </div>
+            <div class="year-overall">
+              <span class="overall-value numeral" [style.color]="colorFor(point.overall)">
+                @if (point.overall === null) {
+                  <span class="not-scored">—</span>
+                } @else {
+                  <sdna-numeral [value]="point.overall" [durationMs]="420" />
+                }
+              </span>
+              <span class="overall-caption">
+                {{ point.overall === null ? 'Not rescored' : 'Overall' }}
+              </span>
+            </div>
+          </header>
+
+          <dl class="year-stats">
+            <div>
+              <dt>Contributors</dt>
+              <dd class="mono">{{ point.contributors }}</dd>
+              <sdna-delta [value]="deltaOf('contributors')" />
+            </div>
+            <div>
+              <dt>Commits</dt>
+              <dd class="mono">{{ point.commits.toLocaleString() }}</dd>
+              <sdna-delta [value]="deltaOf('commits')" />
+            </div>
+            <div>
+              <dt>Lines of code</dt>
+              <dd class="mono">{{ point.linesOfCode.toLocaleString() }}</dd>
+              <sdna-delta [value]="deltaOf('linesOfCode')" />
+            </div>
+            <div>
+              <dt>Modules</dt>
+              <dd class="mono">{{ point.modules }}</dd>
+              <sdna-delta [value]="deltaOf('modules')" />
+            </div>
+            <div>
+              <dt>Hotspots</dt>
+              <dd class="mono">{{ point.hotspots }}</dd>
+              <sdna-delta [value]="deltaOf('hotspots')" />
+            </div>
+            <div>
+              <dt>Test coverage</dt>
+              <dd class="mono">{{ point.testCoverage }}%</dd>
+              <sdna-delta [value]="deltaOf('testCoverage')" unit="%" />
+            </div>
+          </dl>
+        </sdna-panel>
+
+        <sdna-panel heading="Dimensions in {{ point.year }}" [flush]="true">
+          <ul class="dimension-list" role="list">
+            @for (row of dimensionRows(); track row.key) {
+              <li>
+                <div class="dimension-head">
+                  <span class="dimension-label">{{ row.label }}</span>
+                  <span class="dimension-values">
+                    <sdna-delta [value]="row.delta" />
+                    <span class="dimension-score mono" [style.color]="colorFor(row.score)">
+                      {{ row.score === null ? '—' : row.score }}
+                    </span>
+                  </span>
+                </div>
+                <sdna-dimension-meter [score]="row.score" [previous]="row.previous" />
+              </li>
+            }
+          </ul>
+        </sdna-panel>
+
+        <sdna-panel heading="What happened in {{ point.year }}">
+          @if (selectedMilestones().length === 0) {
+            <sdna-state-view
+              kind="no-data"
+              title="No recorded events"
+              [message]="'Nothing notable was flagged in ' + point.year + '. Scores moved through ordinary delivery.'"
+            />
+          } @else {
+            <ul class="event-list" role="list">
+              @for (milestone of selectedMilestones(); track milestone.id) {
+                <li class="event">
+                  <span
+                    class="event-mark"
+                    [style.background]="milestoneColor(milestone.kind)"
+                  ></span>
+                  <div class="event-body">
+                    <div class="event-head">
+                      <span class="event-kind mono">
+                        {{ milestoneLabels[milestone.kind] }}
+                      </span>
+                      <sdna-delta [value]="milestone.impact" unit=" pts" />
+                    </div>
+                    <p class="event-title">{{ milestone.title }}</p>
+                    <p class="event-description">{{ milestone.description }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </sdna-panel>
+      </div>
+    }
+  </div>
+}

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.3.5</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.softwaredna</groupId>
+  <artifactId>software-dna-backend</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>Software DNA Backend</name>
+  <description>Repository analysis engine powering the Software DNA product</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <jgit.version>6.10.0.202406032230-r</jgit.version>
+    <javaparser.version>3.26.2</javaparser.version>
+    <embedded-postgres.version>2.0.7</embedded-postgres.version>
+    <springdoc.version>2.6.0</springdoc.version>
+    <!-- Override with -DexcludedGroups= to include the live network tests. -->
+    <excludedGroups>live</excludedGroups>
+  </properties>
+
+  <dependencies>
+    <!-- Web + validation -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- Persistence -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Caching (in-memory now; swap the provider for Redis without code change) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
+
+    <!-- Operations -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>${springdoc.version}</version>
+    </dependency>
+
+    <!-- Git access. JGit is a pure-Java implementation, so history is read
+         through a library rather than by shelling out to the git binary. -->
+    <dependency>
+      <groupId>org.eclipse.jgit</groupId>
+      <artifactId>org.eclipse.jgit</artifactId>
+      <version>${jgit.version}</version>
+    </dependency>
+
+    <!-- Java source parsing for structural metrics -->
+    <dependency>
+      <groupId>com.github.javaparser</groupId>
+      <artifactId>javaparser-core</artifactId>
+      <version>${javaparser.version}</version>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!--
+      A real PostgreSQL binary, used by the integration tests and by the
+      optional `localdb` Spring profile.
+
+      Testcontainers would be the usual choice for the tests, but it needs a
+      Docker daemon. This runs an actual PostgreSQL server directly, so the
+      tests still exercise real Postgres behaviour, and a developer with
+      neither Docker nor a local server can run the application with one
+      command. Marked optional so it is not pulled into anything that depends
+      on this module, and the `localdb` profile must never be enabled in
+      production.
+    -->
+    <dependency>
+      <groupId>io.zonky.test</groupId>
+      <artifactId>embedded-postgres</artifactId>
+      <version>${embedded-postgres.version}</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Pins the PostgreSQL binaries the embedded server downloads, so the
+           test database is the same major version as production. -->
+      <dependency>
+        <groupId>io.zonky.test.postgres</groupId>
+        <artifactId>embedded-postgres-binaries-bom</artifactId>
+        <version>16.4.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>repackage</id>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+            <configuration>
+              <!--
+                The embedded PostgreSQL exists for local development and for
+                the integration tests. It ships binaries for every supported
+                platform, which is most of the artifact's weight, and a
+                deployable build has no use for a throwaway database.
+
+                Scoped to `repackage` deliberately. Putting it in the plugin's
+                shared configuration also strips it from the `spring-boot:run`
+                classpath, which breaks the `localdb` profile that exists so a
+                developer can start the application without a database.
+              -->
+              <excludeGroupIds>io.zonky.test,io.zonky.test.postgres</excludeGroupIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- Tests tagged `live` reach the real GitHub API. They are run
+               explicitly with -Dgroups=live so the default build stays
+               green without network access. -->
+          <excludedGroups>${excludedGroups}</excludedGroups>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

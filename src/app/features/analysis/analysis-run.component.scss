@@ -1,0 +1,266 @@
+:host {
+  display: block;
+  position: relative;
+  min-height: 100dvh;
+  background: var(--bg-base);
+  overflow: hidden;
+}
+
+/* The helix sits beside the scan rather than behind it. Running it under
+   the stage list made the text fight the animation for attention, which is
+   exactly the kind of motion the product should not have. */
+.backdrop {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 42%;
+  opacity: 0.55;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+}
+
+.stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  width: min(640px, calc(100vw - var(--sp-8)));
+  margin-left: max(var(--sp-8), calc((100vw - var(--content-max)) / 2 + var(--sp-8)));
+  margin-right: auto;
+  padding: clamp(var(--sp-10), 14vh, var(--sp-24)) 0 var(--sp-12);
+}
+
+.head-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.head .eyebrow {
+  color: var(--accent);
+}
+
+.sample-chip {
+  padding: 2px var(--sp-2);
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, var(--border));
+  border-radius: var(--r-xs);
+  background: var(--warning-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--warning);
+}
+
+.title {
+  margin-top: var(--sp-3);
+}
+
+.source {
+  margin-top: var(--sp-2);
+  max-width: 54ch;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-muted);
+}
+
+.source .mono {
+  color: var(--text-secondary);
+}
+
+/* ---- Progress ----------------------------------------------------------- */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.progress-track {
+  flex: 1;
+  height: 2px;
+  border-radius: var(--r-full);
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent), var(--helix));
+  transition: width var(--dur-slow) var(--ease-out);
+}
+
+.progress-value {
+  flex: none;
+  min-width: 4ch;
+  text-align: right;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+/* ---- Stage list --------------------------------------------------------- */
+.stages {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stage-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-1);
+  border-bottom: 1px solid var(--border-subtle);
+  transition:
+    opacity var(--dur-normal) var(--ease-out),
+    color var(--dur-normal) var(--ease-out);
+}
+
+.stage-row.is-pending {
+  opacity: 0.36;
+}
+
+.marker {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  color: var(--bg-base);
+}
+
+.is-complete .marker {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.is-running .marker {
+  border-color: var(--accent);
+}
+
+.marker-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.marker-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: marker-pulse 1s var(--ease-in-out) infinite;
+}
+
+@keyframes marker-pulse {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.stage-label {
+  font-size: var(--fs-base);
+  color: var(--text-secondary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.is-complete .stage-label,
+.is-running .stage-label {
+  color: var(--text-primary);
+}
+
+.stage-detail {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  text-align: right;
+  animation: fade-in var(--dur-normal) var(--ease-out);
+}
+
+.is-complete .stage-detail {
+  color: var(--success);
+}
+
+/* ---- Footer ------------------------------------------------------------- */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  min-height: 36px;
+}
+
+.working {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.generated {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--helix);
+  animation: generated-in var(--dur-slow) var(--ease-spring) both;
+}
+
+@keyframes generated-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.stage.is-complete .backdrop {
+  opacity: 0.7;
+}
+
+@media (max-width: 900px) {
+  /* No room for a side-by-side composition — the helix retreats to a
+     faint full-bleed texture. */
+  .backdrop {
+    inset: 0;
+    width: 100%;
+    opacity: 0.16;
+    mask-image: radial-gradient(70% 60% at 50% 45%, #000 20%, transparent 80%);
+  }
+
+  .stage {
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .stage {
+    gap: var(--sp-6);
+    padding-top: var(--sp-10);
+  }
+
+  .stage-row {
+    grid-template-columns: 22px minmax(0, 1fr);
+    row-gap: 2px;
+  }
+
+  .stage-detail {
+    grid-column: 2;
+    text-align: left;
+  }
+}

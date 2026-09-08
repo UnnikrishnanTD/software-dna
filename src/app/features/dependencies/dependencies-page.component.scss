@@ -1,0 +1,389 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+
+/* ---- Stat strip --------------------------------------------------------- */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1px;
+  margin: 0;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.stat-strip > div {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+}
+
+.stat-strip dt {
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stat-strip dd {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-2xl);
+  color: var(--text-primary);
+}
+
+.stat-strip dd.is-warning {
+  color: var(--warning);
+}
+
+.stat-strip dd.is-danger {
+  color: var(--danger);
+}
+
+/* ---- Composition -------------------------------------------------------- */
+.composition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.composition-bar {
+  display: flex;
+  gap: 2px;
+  height: 40px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.segment {
+  height: 100%;
+  border-radius: 2px;
+  opacity: 0.85;
+  transition:
+    opacity var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.segment:hover,
+.segment:focus-visible {
+  opacity: 1;
+  transform: scaleY(1.08);
+}
+
+.segment.is-dimmed {
+  opacity: 0.22;
+}
+
+.composition-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--sp-2) var(--sp-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tech {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto auto;
+  align-items: baseline;
+  gap: var(--sp-3);
+  padding: var(--sp-1) 0;
+  font-size: var(--fs-xs);
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+
+.tech.is-dimmed {
+  opacity: 0.35;
+}
+
+.tech-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.tech-name {
+  color: var(--text-primary);
+}
+
+.tech-version,
+.tech-lines {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.tech-share {
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.tech-lines {
+  grid-column: 2 / -1;
+  margin-top: -2px;
+}
+
+/* ---- Wall --------------------------------------------------------------- */
+.wall-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
+}
+
+.wall-layout.has-detail,
+.wall-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+}
+
+.wall-filters {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.ecosystem + .ecosystem {
+  margin-top: var(--sp-6);
+}
+
+.ecosystem h3 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.ecosystem h3 .mono {
+  color: var(--text-faint);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* A chip's width is its import count, so a package the whole system leans
+   on is physically bigger than one used once. */
+.dep-chip {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--status-color);
+  border-radius: var(--r-sm);
+  background: var(--surface-elevated);
+  text-align: left;
+  overflow: hidden;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.dep-chip:hover {
+  background: var(--surface-overlay);
+  transform: translateY(-1px);
+}
+
+.dep-chip.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dep-name {
+  font-size: var(--fs-2xs);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dep-version {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.dep-advisory {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  color: var(--danger);
+}
+
+/* ---- Side --------------------------------------------------------------- */
+.side {
+  position: sticky;
+  top: var(--sp-6);
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  animation: rise-in var(--dur-normal) var(--ease-out);
+}
+
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.detail-name {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin: 0;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.detail-metrics dt {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.detail-metrics dd {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.detail-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+
+.detail-note.is-advisory {
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--border));
+  background: var(--danger-soft);
+  color: var(--text-primary);
+}
+
+.detail-note sdna-icon {
+  flex: none;
+  margin-top: 2px;
+}
+
+.attention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.attention-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  margin: 0 calc(var(--sp-3) * -1);
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.attention-row:hover {
+  background: var(--surface-elevated);
+}
+
+.attention-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.attention-name {
+  font-size: var(--fs-xs);
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attention-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.attention-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--danger);
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 1080px) {
+  .wall-layout,
+  .wall-layout.has-detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .side {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--sp-4);
+  }
+
+  .stat-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .stat-strip dd {
+    font-size: var(--fs-xl);
+  }
+}
+
+/* Distinguishes an unperformed check from a measured zero. */
+.not-checked {
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  letter-spacing: var(--tracking-normal);
+  color: var(--text-muted);
+}

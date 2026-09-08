@@ -1,0 +1,124 @@
+<a class="skip-link" href="#shell-main">Skip to content</a>
+
+<header class="topbar">
+  <button
+    type="button"
+    class="btn btn-ghost btn-icon nav-toggle"
+    [attr.aria-expanded]="mobileNavOpen()"
+    aria-controls="shell-nav"
+    aria-label="Toggle navigation"
+    (click)="toggleMobileNav()"
+  >
+    <sdna-icon [name]="mobileNavOpen() ? 'close' : 'menu'" [size]="18" />
+  </button>
+
+  <a routerLink="/" class="brand" aria-label="Software DNA, home">
+    <span class="brand-mark" aria-hidden="true">
+      <sdna-icon name="overview" [size]="15" />
+    </span>
+    <span class="brand-name">SOFTWARE DNA</span>
+  </a>
+
+  <div class="spacer"></div>
+
+  @if (analysis(); as data) {
+    <div class="repo-context">
+      <div class="repo-identity">
+        <span class="repo-name">{{ data.repository.displayName }}</span>
+        <span class="repo-path mono">
+          {{ data.repository.owner }}/{{ data.repository.name }}
+        </span>
+      </div>
+      <!-- Shown only when there is no backend, so a sample profile can never
+           be mistaken for a live analysis. With the API connected these are
+           real analyses and the chip would be a lie. -->
+      @if (!liveBackend) {
+        <span
+          class="sample-chip"
+          title="This build has no backend. All profiles come from a fixed sample dataset."
+        >
+          Sample
+        </span>
+      }
+      <sdna-verdict-badge [score]="data.dna.overall" />
+    </div>
+  }
+
+  <a class="btn btn-ghost btn-sm new-analysis" routerLink="/analyse">
+    <sdna-icon name="plus" [size]="14" />
+    <span>New analysis</span>
+  </a>
+</header>
+
+<div class="shell-body">
+  <nav
+    id="shell-nav"
+    class="sidebar"
+    [class.is-open]="mobileNavOpen()"
+    aria-label="Analysis sections"
+  >
+    <ul role="list">
+      @for (item of navItems; track item.path) {
+        <li>
+          <a
+            [routerLink]="item.path"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.path === '.' }"
+            (click)="closeMobileNav()"
+          >
+            <sdna-icon [name]="item.icon" [size]="16" />
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+
+    @if (analysis(); as data) {
+      <div class="sidebar-footer">
+        <dl class="quick-stats">
+          <div>
+            <dt>Files</dt>
+            <dd class="mono">{{ data.stats.files.toLocaleString() }}</dd>
+          </div>
+          <div>
+            <dt>Lines</dt>
+            <dd class="mono">{{ data.stats.linesOfCode.toLocaleString() }}</dd>
+          </div>
+          <div>
+            <dt>Contributors</dt>
+            <dd class="mono">{{ data.stats.contributors }}</dd>
+          </div>
+        </dl>
+      </div>
+    }
+  </nav>
+
+  @if (mobileNavOpen()) {
+    <button
+      type="button"
+      class="nav-scrim"
+      aria-label="Close navigation"
+      (click)="closeMobileNav()"
+    ></button>
+  }
+
+  <main id="shell-main" class="content">
+    @if (store.isLoading()) {
+      <sdna-state-view
+        kind="loading"
+        title="Loading analysis"
+        message="Reading the generated DNA profile."
+      />
+    } @else if (store.hasError()) {
+      <sdna-state-view
+        kind="error"
+        title="Something went wrong while analysing the repository."
+        [message]="store.error() ?? ''"
+        actionLabel="Try again"
+        (action)="store.retry()"
+      />
+    } @else if (store.isReady()) {
+      <router-outlet />
+    }
+  </main>
+</div>

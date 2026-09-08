@@ -1,0 +1,227 @@
+@if (analysis(); as data) {
+  <div class="page">
+    <sdna-page-header
+      eyebrow="Codebase"
+      heading="File explorer"
+      [description]="
+        data.stats.files.toLocaleString() +
+        ' files across ' +
+        data.stats.modules +
+        ' modules. Directory health is the size-weighted mean of what it contains.'
+      "
+    />
+
+    <div class="workspace">
+      <!-- ---- Tree ------------------------------------------------------ -->
+      <section class="tree-panel" aria-labelledby="tree-heading">
+        <h2 id="tree-heading" class="sr-only">Repository file tree</h2>
+        <div class="tree-toolbar">
+          <div class="search">
+            <sdna-icon name="search" [size]="14" />
+            <label class="sr-only" for="file-search">Search files</label>
+            <input
+              id="file-search"
+              class="search-input"
+              type="search"
+              placeholder="Search files and folders…"
+              [value]="search()"
+              (input)="onSearch($event)"
+            />
+          </div>
+        </div>
+
+        @if (rows().length === 0) {
+          <sdna-state-view
+            kind="empty"
+            title="No files match that search"
+            [message]="'Nothing in the tree matches “' + search() + '”.'"
+            actionLabel="Clear search"
+            (action)="search.set('')"
+          />
+        } @else {
+          <ul class="tree scroll-y" role="tree" [attr.aria-label]="'Repository files'">
+            @for (row of rows(); track row.node.id) {
+              <li role="none">
+                <button
+                  type="button"
+                  role="treeitem"
+                  class="row"
+                  [class.is-directory]="row.node.type === 'directory'"
+                  [class.is-selected]="selectedPath() === row.node.path"
+                  [style.--depth]="row.depth"
+                  [attr.aria-level]="row.depth + 1"
+                  [attr.aria-expanded]="
+                    row.node.type === 'directory' ? row.expanded : null
+                  "
+                  [attr.aria-selected]="selectedPath() === row.node.path"
+                  (click)="activate(row.node)"
+                >
+                  <span class="row-caret" aria-hidden="true">
+                    @if (row.hasChildren) {
+                      <sdna-icon
+                        [name]="row.expanded ? 'chevron-down' : 'chevron-right'"
+                        [size]="12"
+                      />
+                    }
+                  </span>
+
+                  <sdna-icon
+                    class="row-icon"
+                    [name]="row.node.type === 'directory' ? 'folder' : 'file'"
+                    [size]="13"
+                  />
+
+                  <span class="row-name">{{ row.node.name }}</span>
+
+                  @if (row.node.metrics; as metrics) {
+                    <span class="row-meta mono">{{ metrics.linesOfCode }}</span>
+                  }
+
+                  <span
+                    class="row-health"
+                    [style.background]="healthColor(row.node.health)"
+                    [attr.title]="'Health ' + row.node.health"
+                  ></span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <!-- ---- Detail ---------------------------------------------------- -->
+      <section class="detail-panel" aria-labelledby="detail-heading">
+        <h2 id="detail-heading" class="sr-only">Selected file detail</h2>
+        @if (selectedNode(); as node) {
+          <article class="detail">
+            <header class="detail-head">
+              <p class="eyebrow">{{ node.type }}</p>
+              <h2 class="detail-name mono">{{ node.name }}</h2>
+              <p class="detail-path mono">{{ node.path }}</p>
+            </header>
+
+            <div class="health-block">
+              <div class="health-figure">
+                <span class="health-value numeral" [style.color]="healthColor(node.health)">
+                  {{ node.health }}
+                </span>
+                <span class="health-caption">File health</span>
+              </div>
+              <sdna-dimension-meter [score]="node.health ?? 0" />
+            </div>
+
+            @if (node.metrics; as metrics) {
+              <dl class="metrics">
+                <div>
+                  <dt>Complexity</dt>
+                  <dd class="capitalize">
+                    {{ metrics.complexity }} ({{ metrics.complexityScore }})
+                  </dd>
+                </div>
+                <div>
+                  <dt>Lines</dt>
+                  <dd class="mono">{{ metrics.linesOfCode.toLocaleString() }}</dd>
+                </div>
+                <div>
+                  <dt>Dependencies</dt>
+                  <dd class="mono">{{ metrics.dependencies }}</dd>
+                </div>
+                <div>
+                  <dt>Used by</dt>
+                  <dd class="mono">{{ metrics.dependents }}</dd>
+                </div>
+                <div>
+                  <dt>Changes</dt>
+                  <dd class="mono">{{ metrics.changes }}</dd>
+                </div>
+                <div>
+                  <dt>Coverage</dt>
+                  <dd
+                    class="mono"
+                    [style.color]="
+                      metrics.coverage === null
+                        ? 'var(--text-muted)'
+                        : healthColor(metrics.coverage)
+                    "
+                    [attr.title]="
+                      metrics.coverage === null
+                        ? 'No coverage report was found for this repository'
+                        : null
+                    "
+                  >
+                    {{ metrics.coverage === null ? '—' : metrics.coverage + '%' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Risk</dt>
+                  <dd class="risk capitalize" [style.color]="riskColor(node)">
+                    {{ metrics.risk }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Language</dt>
+                  <dd>{{ node.language }}</dd>
+                </div>
+                <div>
+                  <dt>Last changed</dt>
+                  <dd class="mono">{{ metrics.lastChanged }}</dd>
+                </div>
+                <div>
+                  <dt>Primary author</dt>
+                  <dd class="mono">{{ metrics.primaryAuthor }}</dd>
+                </div>
+              </dl>
+
+              @if (node.architectureNodeId) {
+                <a
+                  class="btn btn-sm"
+                  routerLink="../architecture"
+                  [queryParams]="{ node: node.architectureNodeId }"
+                >
+                  <sdna-icon name="architecture" [size]="13" />
+                  Show in architecture graph
+                </a>
+              }
+            } @else {
+              <sdna-state-view
+                kind="no-data"
+                title="Insufficient data to calculate this metric"
+                message="Directories roll up the health of their contents. Select a file for its full metrics."
+              />
+            }
+          </article>
+        } @else {
+          <div class="empty-detail">
+            <sdna-state-view
+              kind="empty"
+              title="No file selected"
+              message="Select a file from the tree to read its metrics, or start with the weakest files below."
+            />
+
+            <div class="weakest">
+              <h3 class="eyebrow">Lowest health</h3>
+              <ul role="list">
+                @for (file of weakestFiles(); track file.id) {
+                  <li>
+                    <button type="button" class="weak-row" (click)="select(file.path)">
+                      <span
+                        class="weak-health mono"
+                        [style.color]="healthColor(file.health)"
+                      >
+                        {{ file.health }}
+                      </span>
+                      <span class="weak-body">
+                        <span class="weak-name mono">{{ file.name }}</span>
+                        <span class="weak-path">{{ file.path }}</span>
+                      </span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+}

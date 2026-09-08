@@ -1,0 +1,100 @@
+<div class="backdrop" aria-hidden="true">
+  <sdna-dna-canvas [amplitudeRatio]="0.22" />
+</div>
+
+<main class="stage" [class.is-complete]="isComplete()">
+  <div class="head">
+    <div class="head-line">
+      <p class="eyebrow">
+        {{ isComplete() ? 'Analysis complete' : 'Analysing' }}
+      </p>
+      @if (usingSampleData()) {
+        <span class="sample-chip">Sample data</span>
+      }
+    </div>
+
+    <!-- The subject is the repository actually being analysed. Showing a
+         name derived from the requested URL implied the scan had reached
+         it, which it had not. -->
+    <h1 class="display-3 title">
+      {{ run()?.displayName ?? 'Repository' }}
+    </h1>
+
+    @if (usingSampleData()) {
+      <p class="source">
+        Standing in for
+        <span class="mono">{{ requestedUrl }}</span>, which this build cannot
+        fetch without a backend.
+      </p>
+    } @else {
+      <p class="source mono">{{ requestedUrl }}</p>
+    }
+  </div>
+
+  <!-- The progress figure is derived from completed stages, not a timer. -->
+  <div
+    class="progress"
+    role="progressbar"
+    aria-label="Analysis progress"
+    [attr.aria-valuenow]="progressPercent()"
+    aria-valuemin="0"
+    aria-valuemax="100"
+  >
+    <div class="progress-track">
+      <div class="progress-fill" [style.width.%]="progressPercent()"></div>
+    </div>
+    <span class="progress-value mono">
+      <sdna-numeral [value]="progressPercent()" [durationMs]="320" suffix="%" />
+    </span>
+  </div>
+
+  <ol class="stages" role="list">
+    @for (stage of run()?.stages ?? []; track stage.id) {
+      <li class="stage-row" [class]="'is-' + stage.status">
+        <span class="marker" aria-hidden="true">
+          @if (stage.status === 'complete') {
+            <sdna-icon name="check" [size]="12" [strokeWidth]="2.4" />
+          } @else if (stage.status === 'running') {
+            <span class="marker-pulse"></span>
+          } @else {
+            <span class="marker-dot"></span>
+          }
+        </span>
+
+        <span class="stage-label">{{ stage.label }}</span>
+
+        <span class="stage-detail mono">
+          @if (stage.status === 'complete') {
+            {{ stage.result }}
+          } @else if (stage.status === 'running') {
+            {{ stage.detail }}
+          }
+        </span>
+
+        <span class="sr-only">
+          {{
+            stage.status === 'complete'
+              ? 'complete'
+              : stage.status === 'running'
+                ? 'in progress'
+                : 'pending'
+          }}
+        </span>
+      </li>
+    }
+  </ol>
+
+  <div class="footer" aria-live="polite">
+    @if (isComplete()) {
+      <p class="generated">
+        <sdna-icon name="sparkle" [size]="15" />
+        DNA generated
+      </p>
+    } @else {
+      <p class="working">{{ activeStageLabel() }}</p>
+    }
+    <button type="button" class="btn btn-ghost btn-sm" (click)="skip()">
+      Skip to results
+    </button>
+  </div>
+</main>

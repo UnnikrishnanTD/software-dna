@@ -1,0 +1,184 @@
+<div class="page">
+  <sdna-page-header
+    eyebrow="Compare"
+    heading="Two repositories, side by side"
+    description="Bars diverge from a shared centre, so the leader in each dimension and the size of the gap are both readable without doing the subtraction yourself."
+  />
+
+  @if (!canCompare()) {
+    <sdna-state-view
+      kind="empty"
+      title="Only one repository has been analysed"
+      message="Comparison needs at least two completed analyses."
+    />
+  } @else {
+    <!-- ---- Selectors ---------------------------------------------------- -->
+    <div class="selectors">
+      <div class="selector">
+        <label class="eyebrow" for="left-repo">Left</label>
+        <select id="left-repo" class="field" (change)="onSelectLeft($event)">
+          @for (summary of available(); track summary.id) {
+            <option [value]="summary.id" [selected]="summary.id === leftId()">
+              {{ summary.displayName }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-icon swap"
+        aria-label="Swap the two repositories"
+        (click)="swap()"
+      >
+        <sdna-icon name="compare" [size]="16" />
+      </button>
+
+      <div class="selector">
+        <label class="eyebrow" for="right-repo">Right</label>
+        <select id="right-repo" class="field" (change)="onSelectRight($event)">
+          @for (summary of available(); track summary.id) {
+            <option [value]="summary.id" [selected]="summary.id === rightId()">
+              {{ summary.displayName }}
+            </option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <sdna-state-view kind="loading" title="Comparing repositories" />
+    } @else if (errorMessage()) {
+      <sdna-state-view
+        kind="error"
+        title="Comparison failed"
+        [message]="errorMessage() ?? ''"
+        actionLabel="Try again"
+        (action)="runComparison()"
+      />
+    } @else {
+      @if (result(); as comparison) {
+      <!-- ---- Headline ---------------------------------------------------- -->
+      <div class="headline">
+        <div class="side is-left">
+          <p class="side-name">{{ comparison.left.displayName }}</p>
+          <p class="side-meta mono">
+            {{ comparison.left.owner }} · {{ comparison.left.primaryLanguage }}
+          </p>
+          <span class="side-score numeral" [style.color]="colorFor(comparison.left.overall)">
+            <sdna-numeral [value]="comparison.left.overall" [durationMs]="800" />
+          </span>
+          <p class="side-wins mono">{{ leftWins() }} of 8 dimensions</p>
+        </div>
+
+        <div class="versus" aria-hidden="true">
+          <span class="versus-line"></span>
+          <span class="versus-label mono">VS</span>
+          <span class="versus-line"></span>
+        </div>
+
+        <div class="side is-right">
+          <p class="side-name">{{ comparison.right.displayName }}</p>
+          <p class="side-meta mono">
+            {{ comparison.right.owner }} · {{ comparison.right.primaryLanguage }}
+          </p>
+          <span class="side-score numeral" [style.color]="colorFor(comparison.right.overall)">
+            <sdna-numeral [value]="comparison.right.overall" [durationMs]="800" />
+          </span>
+          <p class="side-wins mono">{{ rightWins() }} of 8 dimensions</p>
+        </div>
+      </div>
+
+      <!-- ---- Diverging comparison ---------------------------------------- -->
+      <sdna-panel heading="Dimension by dimension" [flush]="true">
+        <ul class="compare-list" role="list">
+          @for (item of rows(); track item.row.key) {
+            <li
+              class="compare-row"
+              [class]="'leads-' + item.row.leader"
+              [attr.aria-label]="
+                item.row.delta === null
+                  ? item.row.label + ': not comparable, one side did not measure it'
+                  : item.row.label +
+                    ': ' +
+                    item.row.left +
+                    ' versus ' +
+                    item.row.right +
+                    (item.row.delta === 0
+                      ? ', level'
+                      : ', a gap of ' +
+                        (item.row.delta > 0 ? item.row.delta : -item.row.delta))
+              "
+            >
+              <span
+                class="value is-left mono"
+                [style.color]="item.leftColor"
+              >
+                {{ item.row.left === null ? '—' : item.row.left }}
+              </span>
+
+              <div class="track">
+                <div class="half is-left">
+                  <div
+                    class="bar is-lead"
+                    [style.width.%]="item.leftLead"
+                    [style.background]="item.leftColor"
+                  ></div>
+                  <div
+                    class="bar is-shared"
+                    [style.width.%]="item.sharedWidth"
+                    [style.background]="item.leftColor"
+                  ></div>
+                </div>
+                <div class="axis"></div>
+                <div class="half is-right">
+                  <div
+                    class="bar is-shared"
+                    [style.width.%]="item.sharedWidth"
+                    [style.background]="item.rightColor"
+                  ></div>
+                  <div
+                    class="bar is-lead"
+                    [style.width.%]="item.rightLead"
+                    [style.background]="item.rightColor"
+                  ></div>
+                </div>
+                <span class="dimension-label">{{ item.row.label }}</span>
+              </div>
+
+              <span
+                class="value is-right mono"
+                [style.color]="item.rightColor"
+              >
+                {{ item.row.right === null ? '—' : item.row.right }}
+              </span>
+            </li>
+          }
+        </ul>
+      </sdna-panel>
+
+      <!-- ---- Verdict ------------------------------------------------------ -->
+      <sdna-panel heading="Verdict" class="elevated">
+        <div class="verdict">
+          <p class="verdict-headline">
+            <sdna-icon name="sparkle" [size]="16" />
+            {{ comparison.verdict.headline }}
+          </p>
+          <p class="verdict-body">{{ comparison.verdict.body }}</p>
+
+          <div class="takeaways">
+            <div class="takeaway">
+              <p class="takeaway-name">{{ comparison.left.displayName }}</p>
+              <p class="takeaway-text">{{ comparison.verdict.leftTakeaway }}</p>
+            </div>
+            <div class="takeaway">
+              <p class="takeaway-name">{{ comparison.right.displayName }}</p>
+              <p class="takeaway-text">{{ comparison.verdict.rightTakeaway }}</p>
+            </div>
+          </div>
+        </div>
+      </sdna-panel>
+      }
+    }
+  }
+</div>

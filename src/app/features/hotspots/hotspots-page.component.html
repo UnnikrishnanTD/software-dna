@@ -1,0 +1,261 @@
+@if (analysis(); as data) {
+  <div class="page">
+    <sdna-page-header
+      eyebrow="Code hotspots"
+      heading="Where complexity and change frequency intersect"
+      description="A file that is complex but stable is manageable. A file that changes constantly but is simple is fine. Risk lives where both are true at once — the upper right of this map."
+    >
+      <span class="critical-count">
+        <sdna-icon name="alert" [size]="13" />
+        {{ criticalCount() }} at high or critical risk
+      </span>
+    </sdna-page-header>
+
+    <div class="workspace">
+      <!-- ---- Map ------------------------------------------------------- -->
+      <section class="plot-panel" aria-label="Hotspot map">
+        <svg
+          class="plot"
+          [attr.viewBox]="'0 0 ' + PLOT_W + ' ' + PLOT_H"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          [attr.aria-label]="
+            'Scatter plot of ' +
+            hotspots().length +
+            ' files by change frequency and complexity'
+          "
+        >
+          <!-- The quadrant that matters, marked rather than left implicit -->
+          <rect
+            class="danger-zone"
+            [attr.x]="dangerZone().x"
+            [attr.y]="dangerZone().y"
+            [attr.width]="dangerZone().width"
+            [attr.height]="dangerZone().height"
+            rx="6"
+          />
+          <text
+            class="zone-label"
+            [attr.x]="dangerZone().x + 12"
+            [attr.y]="dangerZone().y + 20"
+          >
+            HIGH RISK
+          </text>
+
+          <!-- Grid + axes -->
+          @for (tick of yTicks(); track tick.value) {
+            <g class="grid">
+              <line
+                [attr.x1]="PAD_L"
+                [attr.x2]="PLOT_W - 24"
+                [attr.y1]="tick.y"
+                [attr.y2]="tick.y"
+              />
+              <text class="tick" [attr.x]="PAD_L - 12" [attr.y]="tick.y + 4" text-anchor="end">
+                {{ tick.value }}
+              </text>
+            </g>
+          }
+          @for (tick of xTicks(); track tick.value) {
+            <text class="tick" [attr.x]="tick.x" [attr.y]="PLOT_H - 22" text-anchor="middle">
+              {{ tick.value }}
+            </text>
+          }
+
+          <text class="axis-title" [attr.x]="PLOT_W / 2" [attr.y]="PLOT_H - 4" text-anchor="middle">
+            CHANGE FREQUENCY (COMMITS)
+          </text>
+          <text
+            class="axis-title"
+            [attr.transform]="'translate(16 ' + PLOT_H / 2 + ') rotate(-90)'"
+            text-anchor="middle"
+          >
+            COMPLEXITY
+          </text>
+
+          <!-- Marks -->
+          @for (item of plotted(); track item.hotspot.id) {
+            <g
+              class="mark"
+              [class.is-active]="activeHotspot()?.id === item.hotspot.id"
+              [class.is-dimmed]="
+                activeHotspot() && activeHotspot()?.id !== item.hotspot.id
+              "
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="
+                item.hotspot.name +
+                ', ' +
+                item.hotspot.changes +
+                ' changes, complexity ' +
+                item.hotspot.complexityScore +
+                ', risk ' +
+                item.hotspot.riskScore
+              "
+              (pointerenter)="hoveredId.set(item.hotspot.id)"
+              (pointerleave)="hoveredId.set(null)"
+              (focus)="hoveredId.set(item.hotspot.id)"
+              (blur)="hoveredId.set(null)"
+              (click)="select(item.hotspot.id)"
+              (keydown.enter)="select(item.hotspot.id)"
+              (keydown.space)="$event.preventDefault(); select(item.hotspot.id)"
+            >
+              <circle
+                class="mark-halo"
+                [attr.cx]="item.cx"
+                [attr.cy]="item.cy"
+                [attr.r]="item.r + 7"
+                [attr.fill]="item.color"
+              />
+              <circle
+                class="mark-body"
+                [attr.cx]="item.cx"
+                [attr.cy]="item.cy"
+                [attr.r]="item.r"
+                [attr.fill]="item.color"
+              />
+              <text
+                class="mark-label"
+                [attr.x]="item.cx"
+                [attr.y]="item.cy - item.r - 8"
+                text-anchor="middle"
+              >
+                {{ item.hotspot.name }}
+              </text>
+            </g>
+          }
+        </svg>
+
+        <p class="plot-caption caption">
+          Mark area is the composite risk score. Colour runs from healthy to
+          critical on the same scale as the DNA.
+        </p>
+      </section>
+
+      <!-- ---- Detail / ranking ------------------------------------------ -->
+      <aside class="side" aria-label="Hotspot detail">
+        @if (selectedHotspot(); as hotspot) {
+          <article class="detail">
+            <header class="detail-head">
+              <p class="severity" [style.color]="severityColor(hotspot)">
+                <sdna-icon name="hotspots" [size]="14" />
+                {{ hotspot.severity }}-risk hotspot
+              </p>
+              <button
+                type="button"
+                class="btn btn-ghost btn-icon"
+                aria-label="Close hotspot detail"
+                (click)="select(null)"
+              >
+                <sdna-icon name="close" [size]="16" />
+              </button>
+            </header>
+
+            <h2 class="detail-name mono">{{ hotspot.name }}</h2>
+            <p class="detail-path mono">{{ hotspot.path }}</p>
+
+            <dl class="metrics">
+              <div>
+                <dt>Changes</dt>
+                <dd class="mono">{{ hotspot.changes }}</dd>
+              </div>
+              <div>
+                <dt>Complexity</dt>
+                <dd>{{ hotspot.complexity }} ({{ hotspot.complexityScore }})</dd>
+              </div>
+              <div>
+                <dt>Dependencies</dt>
+                <dd class="mono">{{ hotspot.dependencies }}</dd>
+              </div>
+              <div>
+                <dt>Bug fixes</dt>
+                <dd class="mono">{{ hotspot.bugFixes }}</dd>
+              </div>
+              <div>
+                <dt>Coverage</dt>
+                <dd
+                  class="mono"
+                  [style.color]="
+                    hotspot.coverage === null
+                      ? 'var(--text-muted)'
+                      : coverageColor(hotspot.coverage)
+                  "
+                >
+                  {{ hotspot.coverage === null ? '—' : hotspot.coverage + '%' }}
+                </dd>
+              </div>
+              <div>
+                <dt>Contributors</dt>
+                <dd class="mono">{{ hotspot.contributors }}</dd>
+              </div>
+            </dl>
+
+            <section class="reason">
+              <h3 class="eyebrow">Why this matters</h3>
+              <p>{{ hotspot.rationale }}</p>
+            </section>
+
+            <section class="reason">
+              <h3 class="eyebrow">Recommendation</h3>
+              <p>{{ hotspot.recommendation }}</p>
+            </section>
+
+            @if (hotspot.architectureNodeId) {
+              <a
+                class="btn btn-sm"
+                routerLink="../architecture"
+                [queryParams]="{ node: hotspot.architectureNodeId }"
+              >
+                <sdna-icon name="architecture" [size]="13" />
+                Show in architecture graph
+              </a>
+            }
+          </article>
+        } @else {
+          <div class="ranking">
+            <h2 class="eyebrow ranking-heading">Ranked by risk</h2>
+            @if (ranked().length === 0) {
+              <sdna-state-view
+                kind="no-data"
+                title="No hotspots detected"
+                message="No file in this repository combines high complexity with high change frequency."
+              />
+            } @else {
+              <ul role="list">
+                @for (hotspot of ranked(); track hotspot.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="rank-row"
+                      [class.is-hovered]="hoveredId() === hotspot.id"
+                      (pointerenter)="hoveredId.set(hotspot.id)"
+                      (pointerleave)="hoveredId.set(null)"
+                      (focus)="hoveredId.set(hotspot.id)"
+                      (blur)="hoveredId.set(null)"
+                      (click)="select(hotspot.id)"
+                    >
+                      <span
+                        class="rank-score mono"
+                        [style.color]="severityColor(hotspot)"
+                      >
+                        {{ hotspot.riskScore }}
+                      </span>
+                      <span class="rank-body">
+                        <span class="rank-name mono">{{ hotspot.name }}</span>
+                        <span class="rank-meta">
+                          {{ hotspot.changes }} changes ·
+                          cx {{ hotspot.complexityScore }} ·
+                          {{ hotspot.coverage }}% covered
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </aside>
+    </div>
+  </div>
+}

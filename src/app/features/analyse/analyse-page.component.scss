@@ -1,0 +1,288 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background:
+    radial-gradient(
+      100% 70% at 50% 0%,
+      rgba(91, 140, 255, 0.06),
+      transparent 60%
+    ),
+    var(--bg-base);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex: none;
+  height: var(--shell-topbar-h);
+  padding: 0 var(--sp-6);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.brand-name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+}
+
+main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-8) var(--sp-6) var(--sp-16);
+}
+
+.stage {
+  width: 100%;
+  max-width: 640px;
+}
+
+.stage > * + * {
+  margin-top: var(--sp-4);
+}
+
+.lede {
+  max-width: 48ch;
+}
+
+.rise-in:nth-child(1) { animation-delay: 30ms; }
+.rise-in:nth-child(2) { animation-delay: 90ms; }
+.rise-in:nth-child(3) { animation-delay: 150ms; }
+.rise-in:nth-child(4) { animation-delay: 210ms; }
+.rise-in:nth-child(5) { animation-delay: 280ms; }
+
+/* ---- Composer ----------------------------------------------------------- */
+.composer {
+  margin-top: var(--sp-8);
+}
+
+.field-shell {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+
+.field-shell:focus-within {
+  border-color: var(--accent);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 4px var(--accent-softer);
+}
+
+.field-shell.is-invalid {
+  border-color: var(--danger);
+}
+
+.field-prefix {
+  display: inline-flex;
+  color: var(--text-faint);
+  flex: none;
+}
+
+.repo-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-md);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+.repo-input::placeholder {
+  color: var(--text-faint);
+}
+
+.submit {
+  flex: none;
+  height: 40px;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  padding-left: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  min-height: 18px;
+}
+
+.message.is-error {
+  color: var(--danger);
+}
+
+.message.is-ok {
+  color: var(--success);
+}
+
+/* ---- Sample-data notice -------------------------------------------------
+   Shown before submission, not after. The previous build derived a project
+   name from whatever was pasted and then quietly handed back the sample,
+   which read as a broken analysis rather than an unimplemented one. */
+.sample-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+  padding: var(--sp-4);
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: var(--r-md);
+  background: var(--accent-softer);
+  animation: rise-in var(--dur-normal) var(--ease-out);
+}
+
+.sample-notice sdna-icon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--accent);
+}
+
+.sample-title {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.sample-body {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.sample-body strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ---- Suggestions -------------------------------------------------------- */
+.suggestions {
+  margin-top: var(--sp-10);
+}
+
+.suggestions ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.suggestion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text-secondary);
+  text-align: left;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+
+.suggestion:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-elevated);
+}
+
+.suggestion:hover sdna-icon {
+  color: var(--accent);
+}
+
+.suggestion sdna-icon {
+  color: var(--text-faint);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.suggestion-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.suggestion-label {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.suggestion-detail {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.disclosure {
+  margin-top: var(--sp-10);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--border-subtle);
+  max-width: 56ch;
+  line-height: var(--lh-relaxed);
+}
+
+@media (max-width: 640px) {
+  .topbar {
+    padding: 0 var(--sp-4);
+  }
+
+  main {
+    padding: var(--sp-6) var(--sp-4) var(--sp-12);
+    place-items: start center;
+  }
+
+  .field-shell {
+    flex-wrap: wrap;
+    padding: var(--sp-3);
+  }
+
+  .repo-input {
+    flex: 1 1 100%;
+    order: 2;
+    height: 36px;
+  }
+
+  .field-prefix {
+    order: 1;
+  }
+
+  .submit {
+    order: 3;
+    flex: 1 1 100%;
+  }
+}

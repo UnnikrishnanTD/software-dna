@@ -1,0 +1,96 @@
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <a routerLink="/" class="brand" aria-label="Software DNA, home">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M6 3c0 4 12 5 12 9s-12 5-12 9M18 3c0 4-12 5-12 9s12 5 12 9M7.5 7h9M7.5 17h9M6.2 12h11.6" />
+      </svg>
+    </span>
+    <span class="brand-name">SOFTWARE DNA</span>
+  </a>
+
+  <nav class="topbar-actions" aria-label="Primary">
+    @if (demoId(); as id) {
+      <a class="btn btn-ghost btn-sm" [routerLink]="['/analysis', id]">
+        {{ liveBackend ? 'Latest analysis' : 'Explore demo' }}
+      </a>
+    }
+    <a class="btn btn-sm" routerLink="/analyse">
+      Analyse repository
+    </a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow rise-in">Engineering intelligence</p>
+
+      <h1 class="display-1 rise-in hero-title">
+        Every software system<br />has a DNA.
+      </h1>
+
+      <p class="hero-lede rise-in">
+        Analyse your codebase. Understand its architecture.
+        Discover its engineering health.
+      </p>
+
+      <div class="hero-actions rise-in">
+        <a class="btn btn-primary btn-lg" routerLink="/analyse">
+          Analyse repository
+          <sdna-icon name="arrow-right" [size]="15" />
+        </a>
+        @if (demoId(); as id) {
+          <a class="btn btn-lg" [routerLink]="['/analysis', id]">
+            {{ liveBackend ? 'Latest analysis' : 'Explore demo' }}
+          </a>
+        }
+      </div>
+
+      <p class="hero-note rise-in">
+        <sdna-icon name="info" [size]="13" />
+        @if (liveBackend) {
+          Point it at any public GitHub repository. It is cloned, analysed
+          statically, and never executed.
+        } @else {
+          The demo analyses Atlas Commerce Platform — 1,284 files, six years of
+          history.
+        }
+      </p>
+    </div>
+
+    <div class="hero-visual" aria-hidden="false">
+      <sdna-dna-canvas [amplitudeRatio]="0.3" />
+    </div>
+  </section>
+
+  <section class="dimensions" aria-labelledby="dimensions-heading">
+    <div class="dimensions-intro">
+      <h2 id="dimensions-heading" class="eyebrow">Eight dimensions</h2>
+      <p class="body-sm">
+        Each strand answers one question about the system. Together they
+        describe how it was built, how it holds up, and where it is heading.
+      </p>
+    </div>
+
+    <ul class="dimension-grid" role="list">
+      @for (dimension of dimensions; track dimension.label; let i = $index) {
+        <li class="dimension" [style.--stagger]="i">
+          <span class="dimension-index mono">{{ dimension.index }}</span>
+          <span class="dimension-label">{{ dimension.label }}</span>
+          <span class="dimension-question">{{ dimension.question }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <p class="caption">
+    Software DNA — a visual instrument for reading codebases.
+  </p>
+  <p class="caption">
+    Demonstration build. Analysis runs against a fixed sample repository.
+  </p>
+</footer>

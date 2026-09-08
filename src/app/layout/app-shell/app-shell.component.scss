@@ -1,0 +1,269 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ---- Top bar ------------------------------------------------------------ */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex: none;
+  height: var(--shell-topbar-h);
+  padding: 0 var(--sp-4);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  z-index: var(--z-sticky);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.brand-name {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-widest);
+  color: var(--text-primary);
+}
+
+.nav-toggle {
+  display: none;
+}
+
+.repo-context {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding-right: var(--sp-2);
+}
+
+.repo-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+}
+
+.repo-name {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+.repo-path {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.sample-chip {
+  flex: none;
+  padding: 2px var(--sp-2);
+  border: 1px solid color-mix(in srgb, var(--warning) 32%, var(--border));
+  border-radius: var(--r-xs);
+  background: var(--warning-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--warning);
+  cursor: help;
+}
+
+/* ---- Body --------------------------------------------------------------- */
+.shell-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* ---- Sidebar ------------------------------------------------------------ */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  width: var(--shell-sidebar-w);
+  padding: var(--sp-4) var(--sp-3);
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: 34px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+.sidebar a sdna-icon {
+  color: var(--text-faint);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.sidebar a:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.sidebar a:hover sdna-icon {
+  color: var(--text-secondary);
+}
+
+.sidebar a.is-active {
+  background: var(--accent-soft);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.sidebar a.is-active sdna-icon {
+  color: var(--accent);
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: var(--sp-5);
+}
+
+.quick-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: var(--sp-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  background: var(--surface);
+}
+
+.quick-stats > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.quick-stats dt {
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.quick-stats dd {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.nav-scrim {
+  display: none;
+}
+
+/* ---- Content ------------------------------------------------------------ */
+.content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg-base);
+}
+
+/* ---- Responsive --------------------------------------------------------- */
+@media (max-width: 1024px) {
+  :root {
+    --shell-sidebar-w: 200px;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+}
+
+/* Below the tablet breakpoint the sidebar becomes a drawer rather than a
+   squeezed column — the desktop layout does not survive the width. */
+@media (max-width: 860px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  .sidebar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: var(--z-overlay);
+    width: min(268px, 82vw);
+    transform: translateX(-100%);
+    transition: transform var(--dur-normal) var(--ease-out);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.is-open {
+    transform: none;
+  }
+
+  .nav-scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: calc(var(--z-overlay) - 1);
+    background: rgba(4, 5, 7, 0.6);
+    border: 0;
+    animation: fade-in var(--dur-fast) var(--ease-out);
+  }
+
+  .repo-identity {
+    align-items: flex-start;
+  }
+
+  .repo-name {
+    max-width: 30vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 620px) {
+  .new-analysis span,
+  .repo-path,
+  .sample-chip {
+    display: none;
+  }
+
+  .brand-name {
+    display: none;
+  }
+}

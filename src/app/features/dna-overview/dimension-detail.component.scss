@@ -1,0 +1,100 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5);
+  animation: rise-in var(--dur-normal) var(--ease-out);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.score-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.score {
+  font-size: var(--fs-3xl);
+}
+
+.score.is-unmeasured {
+  color: var(--text-faint);
+}
+
+.unmeasured-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.denominator {
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
+  margin-right: var(--sp-2);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-2xs);
+  color: var(--text-muted);
+}
+
+.separator {
+  color: var(--text-faint);
+}
+
+.weight {
+  letter-spacing: var(--tracking-tight);
+}
+
+.summary {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-relaxed);
+  color: var(--text-secondary);
+}
+
+.findings h3 {
+  margin-bottom: var(--sp-3);
+}
+
+.findings ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.findings li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-normal);
+  color: var(--text-secondary);
+}
+
+.findings li sdna-icon {
+  margin-top: 3px;
+  flex: none;
+}
+
+li.is-strength sdna-icon {
+  color: var(--success);
+}
+
+li.is-watch sdna-icon {
+  color: var(--warning);
+}

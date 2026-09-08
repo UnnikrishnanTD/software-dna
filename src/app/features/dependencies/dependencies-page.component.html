@@ -1,0 +1,298 @@
+@if (profile(); as profile) {
+  <div class="page">
+    <sdna-page-header
+      eyebrow="Dependencies"
+      heading="What this system relies on"
+      [description]="
+        profile.total +
+        ' packages resolved across four ecosystems. Chip size shows how widely each package is imported — concentration is what makes a dependency hard to remove.'
+      "
+    />
+
+    <!-- ---- Headline counts --------------------------------------------- -->
+    <dl class="stat-strip">
+      <div>
+        <dt>Total</dt>
+        <dd class="numeral"><sdna-numeral [value]="profile.total" /></dd>
+      </div>
+      <div>
+        <dt>Direct</dt>
+        <dd class="numeral"><sdna-numeral [value]="profile.direct" /></dd>
+      </div>
+      <div>
+        <dt>Transitive</dt>
+        <dd class="numeral" title="Resolving the transitive tree needs a registry lookup">
+          @if (profile.transitive === null) {
+            <span class="not-checked">not checked</span>
+          } @else {
+            <sdna-numeral [value]="profile.transitive" />
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Update available</dt>
+        <dd class="numeral" [class.is-warning]="(profile.outdated ?? 0) > 0">
+          @if (profile.outdated === null) {
+            <span class="not-checked">not checked</span>
+          } @else {
+            <sdna-numeral [value]="profile.outdated" />
+          }
+        </dd>
+      </div>
+      <div>
+        <dt>Deprecated</dt>
+        <dd class="numeral"><sdna-numeral [value]="profile.deprecated" /></dd>
+      </div>
+      <div>
+        <dt>Advisories</dt>
+        <!-- Null means no vulnerability database was consulted. Rendering
+             that as 0 would claim the repository is clean. -->
+        <dd
+          class="numeral"
+          [class.is-danger]="(profile.advisories ?? 0) > 0"
+          title="Advisories are only reported when a vulnerability database is configured"
+        >
+          @if (profile.advisories === null) {
+            <span class="not-checked">not scanned</span>
+          } @else {
+            <sdna-numeral [value]="profile.advisories" />
+          }
+        </dd>
+      </div>
+    </dl>
+
+    <!-- ---- Technology composition -------------------------------------- -->
+    <sdna-panel heading="Technology composition">
+      <div class="composition">
+        <div class="composition-bar" role="img" aria-label="Share of the codebase by technology">
+          @for (segment of composition(); track segment.technology.id) {
+            <button
+              type="button"
+              class="segment"
+              [class.is-dimmed]="
+                hoveredTechnology() &&
+                hoveredTechnology() !== segment.technology.id
+              "
+              [style.width.%]="segment.widthPercent"
+              [style.background]="segment.color"
+              [attr.aria-label]="
+                segment.technology.name + ', ' + segment.technology.share + '% of the codebase'
+              "
+              (pointerenter)="hoveredTechnology.set(segment.technology.id)"
+              (pointerleave)="hoveredTechnology.set(null)"
+              (focus)="hoveredTechnology.set(segment.technology.id)"
+              (blur)="hoveredTechnology.set(null)"
+            ></button>
+          }
+        </div>
+
+        <ul class="composition-legend" role="list">
+          @for (segment of composition(); track segment.technology.id) {
+            <li
+              class="tech"
+              [class.is-dimmed]="
+                hoveredTechnology() &&
+                hoveredTechnology() !== segment.technology.id
+              "
+              (pointerenter)="hoveredTechnology.set(segment.technology.id)"
+              (pointerleave)="hoveredTechnology.set(null)"
+            >
+              <span class="tech-swatch" [style.background]="segment.color"></span>
+              <span class="tech-name">{{ segment.technology.name }}</span>
+              <span class="tech-version mono">{{ segment.technology.version }}</span>
+              <span class="tech-share mono">{{ segment.technology.share }}%</span>
+              <span class="tech-lines mono">
+                {{ segment.technology.linesOfCode.toLocaleString() }} lines
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+    </sdna-panel>
+
+    <!-- ---- The wall ----------------------------------------------------- -->
+    <div class="wall-layout" [class.has-detail]="selected()">
+      <sdna-panel heading="Dependency wall">
+        <div panelActions class="wall-filters">
+          @for (filter of statusFilters(); track filter.status) {
+            <button
+              type="button"
+              class="chip"
+              [attr.aria-pressed]="statusFilter() === filter.status"
+              (click)="toggleStatus(filter.status)"
+            >
+              <span
+                class="status-dot"
+                [style.background]="statusColor(filter.status)"
+              ></span>
+              {{ filter.label }}
+              <span class="mono">{{ filter.count }}</span>
+            </button>
+          }
+        </div>
+
+        @if (filtered().length === 0) {
+          <sdna-state-view
+            kind="empty"
+            title="No dependencies match that filter"
+            message="Clear the filter to see the full dependency surface."
+            actionLabel="Clear filter"
+            (action)="statusFilter.set(null)"
+          />
+        } @else {
+          @for (group of groups(); track group.ecosystem) {
+            <section class="ecosystem">
+              <h3 class="eyebrow">
+                {{ group.label }}
+                <span class="mono">{{ group.dependencies.length }}</span>
+              </h3>
+              <div class="chips">
+                @for (dependency of group.dependencies; track dependency.id) {
+                  <button
+                    type="button"
+                    class="dep-chip"
+                    [class.is-selected]="selectedId() === dependency.id"
+                    [style.width.px]="chipWidth(dependency)"
+                    [style.--status-color]="statusColor(dependency.status)"
+                    [attr.aria-label]="
+                      dependency.name +
+                      ' ' +
+                      dependency.version +
+                      ', ' +
+                      statusLabels[dependency.status] +
+                      ', imported by ' +
+                      dependency.usedBy +
+                      ' modules'
+                    "
+                    (click)="select(dependency.id)"
+                  >
+                    <span class="dep-name mono">{{ dependency.name }}</span>
+                    <span class="dep-version mono">{{ dependency.version }}</span>
+                    @if ((dependency.advisories ?? 0) > 0) {
+                      <span class="dep-advisory" aria-hidden="true">
+                        <sdna-icon name="alert" [size]="10" [strokeWidth]="2.4" />
+                      </span>
+                    }
+                  </button>
+                }
+              </div>
+            </section>
+          }
+        }
+      </sdna-panel>
+
+      <!-- ---- Detail / attention ----------------------------------------- -->
+      <div class="side">
+        @if (selected(); as dependency) {
+          <sdna-panel class="elevated">
+            <article class="detail">
+              <header class="detail-head">
+                <div>
+                  <p class="eyebrow">{{ dependency.ecosystem }}</p>
+                  <h3 class="detail-name mono">{{ dependency.name }}</h3>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-icon"
+                  aria-label="Close dependency detail"
+                  (click)="select(null)"
+                >
+                  <sdna-icon name="close" [size]="16" />
+                </button>
+              </header>
+
+              <dl class="detail-metrics">
+                <div>
+                  <dt>Installed</dt>
+                  <dd class="mono">{{ dependency.version }}</dd>
+                </div>
+                <div>
+                  <dt>Latest</dt>
+                  <dd class="mono">
+                    {{ dependency.latestVersion ?? 'not checked' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Status</dt>
+                  <dd [style.color]="statusColor(dependency.status)">
+                    {{ statusLabels[dependency.status] }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Risk</dt>
+                  <dd class="capitalize" [style.color]="riskColor(dependency)">
+                    {{ dependency.risk }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Imported by</dt>
+                  <dd class="mono">{{ dependency.usedBy }} modules</dd>
+                </div>
+                <div>
+                  <dt>Licence</dt>
+                  <dd class="mono">{{ dependency.license }}</dd>
+                </div>
+                <div>
+                  <dt>Scope</dt>
+                  <dd>{{ dependency.direct ? 'Direct' : 'Transitive' }}</dd>
+                </div>
+                <div>
+                  <dt>Size</dt>
+                  <dd class="mono">
+                    {{ (dependency.sizeKb ?? 0) > 0 ? dependency.sizeKb + ' kB' : '—' }}
+                  </dd>
+                </div>
+              </dl>
+
+              @if (dependency.note) {
+                <p class="detail-note" [class.is-advisory]="(dependency.advisories ?? 0) > 0">
+                  <sdna-icon name="info" [size]="13" />
+                  {{ dependency.note }}
+                </p>
+              }
+            </article>
+          </sdna-panel>
+        } @else {
+          <sdna-panel heading="Needs attention">
+            @if (needsAttention().length === 0) {
+              <sdna-state-view
+                kind="no-data"
+                title="Nothing outstanding"
+                message="Every dependency is current with no open advisories."
+              />
+            } @else {
+              <ul class="attention-list" role="list">
+                @for (dependency of needsAttention(); track dependency.id) {
+                  <li>
+                    <button
+                      type="button"
+                      class="attention-row"
+                      (click)="select(dependency.id)"
+                    >
+                      <span
+                        class="status-dot"
+                        [style.background]="statusColor(dependency.status)"
+                      ></span>
+                      <span class="attention-body">
+                        <span class="attention-name mono">{{ dependency.name }}</span>
+                        <span class="attention-meta mono">
+                          {{ dependency.version }} → {{ dependency.latestVersion ?? 'unknown' }}
+                        </span>
+                      </span>
+                      @if ((dependency.advisories ?? 0) > 0) {
+                        <span class="attention-flag">
+                          <sdna-icon name="alert" [size]="12" />
+                          {{ dependency.advisories }}
+                        </span>
+                      }
+                    </button>
+                  </li>
+                }
+              </ul>
+            }
+          </sdna-panel>
+        }
+      </div>
+    </div>
+  </div>
+}
