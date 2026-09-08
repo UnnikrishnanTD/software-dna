@@ -1,0 +1,20 @@
+# Netlify build configuration.
+#
+# Committing this means "Import from Git" needs no manual build settings —
+# Netlify reads them from here.
+[build]
+  command = "npm run build -- --configuration production"
+  publish = "dist/software-dna/browser"
+
+[build.environment]
+  NODE_VERSION = "20.9.0"
+
+# The Angular router handles paths like /analysis/:id/architecture entirely
+# client-side. Netlify's static file server has no route for that path on
+# its own, so without this rewrite, a direct visit or a page refresh on
+# anything but the homepage would 404. Every path falls through to
+# index.html and the Angular router takes it from there.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
