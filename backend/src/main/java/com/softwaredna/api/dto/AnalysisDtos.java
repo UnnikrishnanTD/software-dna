@@ -155,7 +155,9 @@ public final class AnalysisDtos {
 
     // ---- Codebase ----------------------------------------------------------
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    // No class-level @JsonInclude here: `coverage` is nullable but always
+    // present in the frontend contract (`number | null`, not optional), so
+    // omitting the key when null would turn it into `undefined` client-side.
     public record FileMetricsDto(
             int linesOfCode,
             ComplexityBand complexity,
@@ -186,7 +188,9 @@ public final class AnalysisDtos {
 
     // ---- Hotspots ----------------------------------------------------------
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    // `coverage` is nullable-but-always-present (`number | null` on the
+    // frontend); only `architectureNodeId` is genuinely optional there, so
+    // that field alone is excluded when null rather than the whole record.
     public record HotspotDto(
             String id,
             String name,
@@ -203,13 +207,14 @@ public final class AnalysisDtos {
             RiskLevel severity,
             String rationale,
             String recommendation,
-            String architectureNodeId
+            @JsonInclude(JsonInclude.Include.NON_NULL) String architectureNodeId
     ) {
     }
 
     // ---- Dependencies ------------------------------------------------------
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    // `latestVersion`, `sizeKb` and `advisories` are nullable-but-always-present
+    // on the frontend; only `note` is genuinely optional there.
     public record DependencyDto(
             String id,
             String name,
@@ -225,7 +230,7 @@ public final class AnalysisDtos {
             RiskLevel risk,
             @Schema(description = "Null means no advisory source was consulted, not zero findings")
             Integer advisories,
-            String note
+            @JsonInclude(JsonInclude.Include.NON_NULL) String note
     ) {
     }
 
@@ -255,7 +260,9 @@ public final class AnalysisDtos {
 
     // ---- Evolution ---------------------------------------------------------
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    // `overall` and `testCoverage` are nullable-but-always-present on the
+    // frontend, and every other field here is non-nullable, so nothing in
+    // this record should ever be omitted.
     public record EvolutionPointDto(
             int year,
             @Schema(description = "Dimension scores; empty for years the analysis did not re-run")

@@ -14,7 +14,7 @@ import {
 } from '../../core/models/evolution.model';
 import { AnalysisStore } from '../../core/services/analysis-store';
 import { healthRamp, scale } from '../../core/util/health';
-import { forLayout, isMeasured } from '../../core/util/measurement';
+import { forLayout, formatMeasurement, isMeasured } from '../../core/util/measurement';
 import { DeltaBadgeComponent } from '../../shared/ui/delta-badge.component';
 import { DimensionMeterComponent } from '../../shared/ui/dimension-meter.component';
 import { IconComponent } from '../../shared/ui/icon.component';
@@ -113,6 +113,10 @@ export class EvolutionPageComponent {
     const index = this.selectedIndex();
     return index > 0 ? (this.points()[index - 1] ?? null) : null;
   });
+
+  /** "—" when no coverage report exists, otherwise a percentage to 2 decimals. */
+  protected readonly formatCoverage = (coverage: number | null): string =>
+    formatMeasurement(coverage, { suffix: '%', decimals: 2 });
 
   protected readonly firstYear = computed(() => this.points()[0]?.year ?? 0);
   protected readonly lastYear = computed(

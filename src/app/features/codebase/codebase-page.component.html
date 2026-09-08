@@ -139,17 +139,17 @@
                   <dd
                     class="mono"
                     [style.color]="
-                      metrics.coverage === null
+                      metrics.coverage == null
                         ? 'var(--text-muted)'
                         : healthColor(metrics.coverage)
                     "
                     [attr.title]="
-                      metrics.coverage === null
+                      metrics.coverage == null
                         ? 'No coverage report was found for this repository'
                         : null
                     "
                   >
-                    {{ metrics.coverage === null ? '—' : metrics.coverage + '%' }}
+                    {{ formatCoverage(metrics.coverage) }}
                   </dd>
                 </div>
                 <div>

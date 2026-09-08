@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
 import { DnaDimension, DnaDimensionKey } from '../../core/models/dna.model';
 import { AnalysisStore } from '../../core/services/analysis-store';
 import { healthRamp, verdictLabel } from '../../core/util/health';
-import { compareMeasurements } from '../../core/util/measurement';
+import { compareMeasurements, formatMeasurement } from '../../core/util/measurement';
 import { DnaHelixComponent } from '../../shared/dna/dna-helix.component';
 import { DeltaBadgeComponent } from '../../shared/ui/delta-badge.component';
 import { DimensionMeterComponent } from '../../shared/ui/dimension-meter.component';
@@ -104,6 +104,10 @@ export class DnaOverviewComponent {
 
   protected readonly colorFor = (score: number | null): string =>
     score === null ? 'var(--text-muted)' : healthRamp(score);
+
+  /** "—" when no coverage report exists, otherwise a percentage to 2 decimals. */
+  protected readonly formatCoverage = (coverage: number | null): string =>
+    formatMeasurement(coverage, { suffix: '%', decimals: 2 });
 
   protected select(key: DnaDimensionKey): void {
     this.selected.update((current) => (current === key ? null : key));

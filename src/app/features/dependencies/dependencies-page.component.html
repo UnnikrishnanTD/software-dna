@@ -100,7 +100,7 @@
               <span class="tech-swatch" [style.background]="segment.color"></span>
               <span class="tech-name">{{ segment.technology.name }}</span>
               <span class="tech-version mono">{{ segment.technology.version }}</span>
-              <span class="tech-share mono">{{ segment.technology.share }}%</span>
+              <span class="tech-share mono">{{ segment.technology.share | number: '1.0-2' }}%</span>
               <span class="tech-lines mono">
                 {{ segment.technology.linesOfCode.toLocaleString() }} lines
               </span>

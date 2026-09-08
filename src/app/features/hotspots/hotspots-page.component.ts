@@ -13,6 +13,7 @@ import { map } from 'rxjs/operators';
 import { Hotspot } from '../../core/models/hotspot.model';
 import { AnalysisStore } from '../../core/services/analysis-store';
 import { healthRamp, riskColorVar, scale } from '../../core/util/health';
+import { formatMeasurement } from '../../core/util/measurement';
 import { IconComponent } from '../../shared/ui/icon.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { StateViewComponent } from '../../shared/ui/state-view.component';
@@ -58,6 +59,10 @@ export class HotspotsPageComponent {
   protected readonly hotspots = computed<readonly Hotspot[]>(
     () => this.analysis()?.hotspots ?? [],
   );
+
+  /** "—" when no coverage report exists, otherwise a percentage to 2 decimals. */
+  protected readonly formatCoverage = (coverage: number | null): string =>
+    formatMeasurement(coverage, { suffix: '%', decimals: 2 });
 
   private readonly maxChanges = computed(() =>
     Math.max(...this.hotspots().map((h) => h.changes), 10),

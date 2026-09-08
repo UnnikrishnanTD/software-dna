@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -66,6 +67,7 @@ const STATUS_LABELS: Readonly<Record<DependencyStatus, string>> = {
   selector: 'sdna-dependencies',
   standalone: true,
   imports: [
+    DecimalPipe,
     IconComponent,
     PageHeaderComponent,
     PanelComponent,

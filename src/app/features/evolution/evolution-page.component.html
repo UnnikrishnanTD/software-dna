@@ -198,7 +198,7 @@
             </div>
             <div>
               <dt>Test coverage</dt>
-              <dd class="mono">{{ point.testCoverage }}%</dd>
+              <dd class="mono">{{ formatCoverage(point.testCoverage) }}</dd>
               <sdna-delta [value]="deltaOf('testCoverage')" unit="%" />
             </div>
           </dl>

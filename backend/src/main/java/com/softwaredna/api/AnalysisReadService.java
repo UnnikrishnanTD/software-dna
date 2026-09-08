@@ -78,9 +78,19 @@ public class AnalysisReadService {
         this.repositories = repositories;
     }
 
+    /**
+     * Completed analyses, one per repository.
+     *
+     * <p>A repository re-analysed several times has one row per run, but the
+     * frontend's list and comparison picker should offer each repository
+     * once. Rows already arrive newest-first, so keeping the first one seen
+     * per repository keeps the latest run and drops the rest.
+     */
     @Transactional(readOnly = true)
     public List<AnalysisDtos.AnalysisSummary> listCompleted() {
+        java.util.Set<java.util.UUID> seenRepositories = new java.util.HashSet<>();
         return analyses.findByStatusOrderByFinishedAtDesc(AnalysisStatus.COMPLETED).stream()
+                .filter(analysis -> seenRepositories.add(analysis.getRepositoryId()))
                 .map(this::toSummary)
                 .filter(java.util.Objects::nonNull)
                 .toList();

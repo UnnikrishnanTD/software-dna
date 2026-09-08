@@ -13,6 +13,7 @@ import { map } from 'rxjs/operators';
 import { FileNode } from '../../core/models/codebase.model';
 import { AnalysisStore } from '../../core/services/analysis-store';
 import { healthRamp, riskColorVar } from '../../core/util/health';
+import { formatMeasurement } from '../../core/util/measurement';
 import { IconComponent } from '../../shared/ui/icon.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 import { StateViewComponent } from '../../shared/ui/state-view.component';
@@ -47,6 +48,10 @@ export class CodebasePageComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly analysis = this.store.analysis;
+
+  /** "—" when no coverage report exists, otherwise a percentage to 2 decimals. */
+  protected readonly formatCoverage = (coverage: number | null | undefined): string =>
+    formatMeasurement(coverage, { suffix: '%', decimals: 2 });
 
   protected readonly search = signal('');
   protected readonly selectedPath = signal<string | null>(null);

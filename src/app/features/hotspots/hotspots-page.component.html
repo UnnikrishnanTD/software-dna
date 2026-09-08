@@ -181,7 +181,7 @@
                       : coverageColor(hotspot.coverage)
                   "
                 >
-                  {{ hotspot.coverage === null ? '—' : hotspot.coverage + '%' }}
+                  {{ formatCoverage(hotspot.coverage) }}
                 </dd>
               </div>
               <div>
@@ -245,7 +245,7 @@
                         <span class="rank-meta">
                           {{ hotspot.changes }} changes ·
                           cx {{ hotspot.complexityScore }} ·
-                          {{ hotspot.coverage }}% covered
+                          {{ formatCoverage(hotspot.coverage) }} covered
                         </span>
                       </span>
                     </button>

@@ -169,7 +169,7 @@
 
       <sdna-panel heading="Highest risk">
         <div panelActions>
-          <a class="btn btn-ghost btn-sm" routerLink="../hotspots">
+          <a class="btn btn-ghost btn-sm" [routerLink]="['/analysis', data.id, 'hotspots']">
             All hotspots
             <sdna-icon name="arrow-right" [size]="13" />
           </a>
@@ -178,13 +178,17 @@
         <ul class="risk-list" role="list">
           @for (hotspot of topRisks(); track hotspot.id) {
             <li>
-              <a class="risk" [routerLink]="['../hotspots']" [queryParams]="{ hotspot: hotspot.id }">
+              <a
+                class="risk"
+                [routerLink]="['/analysis', data.id, 'hotspots']"
+                [queryParams]="{ hotspot: hotspot.id }"
+              >
                 <span class="risk-rank mono">{{ hotspot.riskScore }}</span>
                 <span class="risk-body">
                   <span class="risk-name mono">{{ hotspot.name }}</span>
                   <span class="risk-meta">
                     {{ hotspot.changes }} changes ·
-                    {{ hotspot.coverage }}% covered ·
+                    {{ formatCoverage(hotspot.coverage) }} covered ·
                     {{ hotspot.dependencies }} dependencies
                   </span>
                 </span>
@@ -223,7 +227,7 @@
           </div>
           <div>
             <dt>Test coverage</dt>
-            <dd class="mono">{{ data.stats.testCoverage }}%</dd>
+            <dd class="mono">{{ formatCoverage(data.stats.testCoverage) }}</dd>
           </div>
           <div>
             <dt>Primary language</dt>
